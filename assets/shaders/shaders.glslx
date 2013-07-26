@@ -9,7 +9,9 @@ uniform mat4 viewMat;
 uniform mat4 projMat;
 uniform int squareState;
 uniform int isMinimap;
+uniform int playerSpace;
 uniform float t;
+uniform float pulse;
 uniform float fade;
 uniform float shield;
 uniform float hp;
@@ -185,6 +187,11 @@ export void hallFrag() {
     }
 
     vec4 color = mix(vec4(0.5, 0.5, 0.5, 1), hall, 1.0 - circularIn(squareState < 2 ? 1.0 : t));
+
+    if (isMinimap == 1 && playerSpace == 1) {
+        float mixValue = pulse < 0.5 ? pulse / 0.5 : 1.0 - ((pulse - 0.5) / 0.5);
+        color = mix(color, vec4(0.5, 0.5, 0.5, 1), mixValue);
+    }
     color.a = 1.0 - fade;
     gl_FragColor = color;
 }

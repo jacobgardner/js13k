@@ -57,6 +57,15 @@ export default class Node {
         renderer.modelMat = setMatrix(x, y);
         renderer.setMatrices();
 
+        const isPlayerSpace = Math.floor(game.player.x) === x && Math.floor(game.player.y) === y;
+
+        gl.uniform1i(
+            game.mazeShaders.playerSpace,
+            isPlayerSpace
+                ? 1
+                : 0
+        );
+
         gl.uniform1i(
             game.mazeShaders.squareState,
             this === game.start
@@ -70,6 +79,11 @@ export default class Node {
         }
 
         gl.uniform1f(game.mazeShaders.t, t);
+        const pulse = (Date.now() / 1000) % 1;
+        gl.uniform1f(game.mazeShaders.pulse, pulse);
+        // if (isPlayerSpace) {
+        //     console.log(pulse < 0.5 ? pulse / 0.5 : 1.0 - ((pulse - 0.5) / 0.5));
+        // }
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 }

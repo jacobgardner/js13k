@@ -45,7 +45,7 @@ export class Grid {
             0
         );
 
-        game.renderer.gl.uniform1i(
+        gl.uniform1i(
             game.mazeShaders.isMinimap,
             isMinimap ? 1 : 0
         );
