@@ -1,6 +1,7 @@
 import Game from './game';
 import config from './config';
 import { setMatrix } from './lib';
+import { Vec2 } from './math';
 
 const LEFT = 1;
 const RIGHT = 2;
@@ -11,12 +12,13 @@ export default class Node {
     untouched: Node[] = [];
     children: Node[] = [];
     touched: boolean = false;
-    position: number[];
+    position: Vec2;
+    // position: number[];
     distance: number = 0;
     time?: number = 0;
 
     constructor(x: number, y: number) {
-        this.position = [x, y];
+        this.position = new Vec2(x, y);
     }
 
     passable(x: number, y: number, radius: number = 0): boolean {
@@ -34,14 +36,14 @@ export default class Node {
 
         x = Math.floor(x);
         y = Math.floor(y);
-        if (this.position[0] === x && this.position[1] === y) {
+        if (this.position.x === x && this.position.y === y) {
             return true;
         }
 
         for (const child of this.children) {
             if (
-                child.position[0] === Math.floor(x) &&
-                child.position[1] === Math.floor(y)
+                child.position.x === Math.floor(x) &&
+                child.position.y === Math.floor(y)
             ) {
                 return true;
             }
@@ -51,13 +53,13 @@ export default class Node {
     }
 
     draw(game: Game) {
-        const [x, y] = this.position;
+        const {x, y} = this.position;
         const renderer = game.renderer;
         const gl = renderer.gl;
         renderer.modelMat = setMatrix(x, y);
         renderer.setMatrices();
 
-        const isPlayerSpace = Math.floor(game.player.x) === x && Math.floor(game.player.y) === y;
+        const isPlayerSpace = Math.floor(game.player.position.x) === x && Math.floor(game.player.position.y) === y;
 
         gl.uniform1i(
             game.mazeShaders.playerSpace,

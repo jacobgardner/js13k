@@ -4,14 +4,14 @@ import { setMatrix } from './lib';
 import config from './config';
 import { state } from './globals';
 import Game from './game';
+import { Vec2 } from './math';
 
 const PLAYER_SCALE = 0.04;
 
 export default class Player {
     hp: number = 0;
     speed: number = config.INITIAL_PLAYER_SPEED;
-    x: number;
-    y: number;
+    position: Vec2;
     program: Program;
     shieldProgram: Program;
     actualHP: number = 1;
@@ -25,7 +25,7 @@ export default class Player {
     }
 
     start(x: number, y: number) {
-        [this.x, this.y] = [x + 0.5, y + 0.5];
+        this.position = new Vec2(x + 0.5, y + 0.5);
     }
 
     attack(damage: number) {
@@ -37,7 +37,7 @@ export default class Player {
         }
 
         if (
-            this.game.grid.get(Math.floor(this.x), Math.floor(this.y)) ===
+            this.game.grid.get(Math.floor(this.position.x), Math.floor(this.position.y)) ===
             this.game.start
         ) {
             return;
@@ -73,8 +73,8 @@ export default class Player {
                       : 1;
             const scale = PLAYER_SCALE * 2 * scalar;
             renderer.modelMat = setMatrix(
-                this.x - scale / 2,
-                this.y - scale / 2,
+                this.position.x - scale / 2,
+                this.position.y - scale / 2,
                 scale
             );
             renderer.setMatrices();
@@ -89,8 +89,8 @@ export default class Player {
         gl.vertexAttribPointer(this.program.vertPos, 2, gl.FLOAT, false, 0, 0);
 
         renderer.modelMat = setMatrix(
-            this.x - PLAYER_SCALE / 2,
-            this.y - PLAYER_SCALE / 2,
+            this.position.x - PLAYER_SCALE / 2,
+            this.position.y - PLAYER_SCALE / 2,
             PLAYER_SCALE
         );
         renderer.setMatrices();

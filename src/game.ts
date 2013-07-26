@@ -130,7 +130,7 @@ export default class Game {
                 if (random(0, 10) === 0) {
                     const Item = itemTypes[random(0, itemTypes.length)];
                     this.entities.push(
-                        new Item(node.position[0], node.position[1])
+                        new Item(node.position.x, node.position.y)
                     );
                 }
 
@@ -139,8 +139,8 @@ export default class Game {
                     const Enemy = enemyTypes[random(0, enemyTypes.length)];
 
                     const enemy = new Enemy(
-                        node.position[0] + 0.2 + Math.random() * 0.6,
-                        node.position[1] + 0.2 + Math.random() * 0.6,
+                        node.position.x + 0.2 + Math.random() * 0.6,
+                        node.position.y + 0.2 + Math.random() * 0.6,
                         this.level,
                         node.distance
                     );
@@ -149,15 +149,16 @@ export default class Game {
             }
         }
 
-        this.player.start(this.start.position[0], this.start.position[1]);
+        this.player.start(this.start.position.x, this.start.position.y);
     }
 
     processInput() {
         const { player, grid, downMap } = this;
-        let [x, y] = [player.x, player.y];
+        let {x, y} = player.position;
+        // let [x, y] = [player.x, player.y];
 
-        const px = player.x;
-        const py = player.y;
+        const px = x;
+        const py = y;
         const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
 
         if (!this.startVector[0] && !this.startVector[1]) {
@@ -232,11 +233,11 @@ export default class Game {
         }
 
         if (current.passable(x + xoffset, py + yoffset)) {
-            player.x = x;
+            player.position.x = x;
         }
 
         if (current.passable(px + xoffset, y + yoffset)) {
-            player.y = y;
+            player.position.y = y;
         }
 
         current.touched = false;
@@ -251,8 +252,11 @@ export default class Game {
         const shadowScale = 500;
         for (const key in this.grid.nodes) {
             const node = this.grid.nodes[key];
-            const [nx, ny] = node.position;
-            const [px, py] = [this.player.x, this.player.y];
+            const {x: nx, y: ny} = node.position;
+
+            // const playerPos = this.player.position;
+            const {x: px, y: py} = this.player.position;
+            // const [px, py] = [this.player.x, this.player.y];
             const x = px - nx;
             const y = py - ny;
 
@@ -316,7 +320,7 @@ export default class Game {
             SCALE,             0,                 0, 0,
             0,                 SCALE,             0, 0,
             0,                 0,                 1, 0,
-            -SCALE * player.x, -SCALE * player.y, 1, 1
+            -SCALE * player.position.x, -SCALE * player.position.y, 1, 1
         ]);
 
         this.buildShadows();
@@ -330,8 +334,8 @@ export default class Game {
         this.pendingEntities = [];
         for (const entity of this.entities) {
             if (
-                Math.abs(player.x - entity.x) > config.RENDER_AOE ||
-                Math.abs(player.y - entity.y) > config.RENDER_AOE
+                Math.abs(player.position.x - entity.position.x) > config.RENDER_AOE ||
+                Math.abs(player.position.y - entity.position.y) > config.RENDER_AOE
             ) {
                 continue;
             }
@@ -354,8 +358,8 @@ export default class Game {
 
         this.flashlightShaders.use();
         this.renderer.modelMat = setMatrix(
-            this.player.x - 1,
-            this.player.y - 1,
+            player.position.x - 1,
+            player.position.y - 1,
             2
         );
         this.renderer.setMatrices();
@@ -383,20 +387,21 @@ export default class Game {
             gl.drawArrays(gl.TRIANGLES, 0, this.shadowCount);
         }
 
-        let exitVec: [number, number] = [
-            this.end.position[0] + 0.5 - this.player.x,
-            this.end.position[1] + 0.5 - this.player.y
-        ];
+        let exitVec = this.end.position.add(0.5).add(player.position);
+        // let exitVec: [number, number] = [
+        //     this.end.position.x + 0.5 - this.player.x,
+        //     this.end.position.y + 0.5 - this.player.y
+        // ];
 
         const maxDist = 0.75;
 
         const indicatorDist = Math.sqrt(
-            Math.pow(exitVec[0], 2) + Math.pow(exitVec[1], 2)
+            Math.pow(exitVec.x, 2) + Math.pow(exitVec.x, 2)
         );
         let indicatorAlpha = 0;
         if (indicatorDist > maxDist * maxDist) {
-            exitVec = normalize(exitVec);
-            exitVec = [exitVec[0] * maxDist, exitVec[1] * maxDist];
+            exitVec = exitVec.normalize().multiply(maxDist);
+            // exitVec = [exitVec.x * maxDist, exitVec[1] * maxDist];
         }
 
         indicatorAlpha =
@@ -415,8 +420,8 @@ export default class Game {
             0
         );
         this.renderer.modelMat = setMatrix(
-            player.x - 0.02 + exitVec[0],
-            player.y - 0.02 + exitVec[1],
+            player.position.x - 0.02 + exitVec.x,
+            player.position.y - 0.02 + exitVec.y,
             0.04
         );
         this.renderer.setMatrices();
@@ -458,8 +463,8 @@ export default class Game {
         }
 
         const playerNode = this.grid.get(
-            Math.floor(player.x),
-            Math.floor(player.y)
+            Math.floor(player.position.x),
+            Math.floor(player.position.y)
         );
         if (playerNode === this.end) {
             player.actualHP = 1.8;

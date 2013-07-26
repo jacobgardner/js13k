@@ -5,10 +5,10 @@ import Node from './node';
 import { normalize } from './lib';
 import config from './config';
 import { lerp } from './progression';
+import { Vec2 } from './math';
 
 export interface Entity {
-    x: number;
-    y: number;
+    position: Vec2;
 
     draw(game: Game): void;
     // Return false on remove
@@ -16,19 +16,24 @@ export interface Entity {
 }
 
 export class Bullet implements Entity {
+    position: Vec2;
+    vector: Vec2;
+
     bulletScale: number = 0.05;
     bulletSpeed: number = 0.6;
 
-    vector: [number, number];
-    constructor(public x: number, public y: number) {}
+    constructor(x: number, y: number) {
+        this.position = new Vec2(x, y);
+    }
+
     draw(game: Game) {
         const renderer = game.renderer;
         const gl = renderer.gl;
         game.bulletShaders.use();
 
         renderer.modelMat = setMatrix(
-            this.x - this.bulletScale / 2,
-            this.y - this.bulletScale / 2,
+            this.position.x - this.bulletScale / 2,
+            this.position.y - this.bulletScale / 2,
             this.bulletScale
         );
         renderer.setMatrices();
@@ -37,12 +42,14 @@ export class Bullet implements Entity {
     }
 
     simulate(game: Game) {
-        const dx = this.x + this.vector[0] * this.bulletSpeed * state.delta;
-        const dy = this.y + this.vector[1] * this.bulletSpeed * state.delta;
+        const dx =
+            this.position.x + this.vector.x * this.bulletSpeed * state.delta;
+        const dy =
+            this.position.y + this.vector.y * this.bulletSpeed * state.delta;
 
         const current = game.grid.get(
-            Math.floor(this.x),
-            Math.floor(this.y)
+            Math.floor(this.position.x),
+            Math.floor(this.position.y)
         ) as Node;
         const player = game.player;
         if (
@@ -52,7 +59,7 @@ export class Bullet implements Entity {
             current.passable(dx, dy, 0.02)
         ) {
             // Check for player collision
-            const { x, y } = player;
+            const { x, y } = player.position;
 
             if (
                 current.passable(x, y) &&
@@ -66,8 +73,8 @@ export class Bullet implements Entity {
                 }
             }
 
-            this.x = dx;
-            this.y = dy;
+            this.position.x = dx;
+            this.position.y = dy;
             return true;
         }
 
@@ -76,23 +83,26 @@ export class Bullet implements Entity {
 }
 
 abstract class Enemy implements Entity {
+    position: Vec2;
+
     constructor(
-        public x: number,
-        public y: number,
+        x: number,
+        y: number,
         public level: number,
         public distance: number
-    ) {}
+    ) {
+        this.position = new Vec2(x, y);
+    }
 
     abstract draw(game: Game): void;
     abstract simulate(game: Game): boolean;
 }
 
 abstract class Item implements Entity {
-    constructor(
-        public x: number,
-        public y: number // public level: number,
-    ) // public distance: number
-    {
+    position: Vec2;
+
+    constructor(x: number, y: number) {
+        this.position = new Vec2(x, y);
     }
 
     abstract draw(game: Game): void;
@@ -116,8 +126,8 @@ export class Shield extends Item {
         gl.uniform1f(game.shieldProgram.fade, this.fade);
 
         renderer.modelMat = setMatrix(
-            this.x - this.shieldScale / 2,
-            this.y - this.shieldScale / 2,
+            this.position.x - this.shieldScale / 2,
+            this.position.y - this.shieldScale / 2,
             this.shieldScale
         );
         renderer.setMatrices();
@@ -125,7 +135,10 @@ export class Shield extends Item {
     }
 
     simulate(game: Game) {
-        const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
+        const { player } = game;
+        // const dp = game.player.position.subtract(this.position);
+        // const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
+        // const dist =
 
         if (this.grabbed) {
             this.fade =
@@ -134,7 +147,7 @@ export class Shield extends Item {
             if (this.fade > 1) {
                 return false;
             }
-        } else if (dx * dx + dy * dy < 0.05) {
+        } else if (player.position.dist2(this.position) < 0.05) {
             this.grabbed = Date.now();
             game.player.shield = Date.now();
             // game.minimapActivated = Date.now();
@@ -168,12 +181,14 @@ export class MiniMap extends Item {
         const r1 = c * minimapScale;
         const r2 = s * minimapScale;
 
+        const drawPos = this.position.subtract(game.player.position);
+
         // prettier-ignore
         renderer.camera = new Float32Array([
             r1,      r2,                 0, 0,
             -r2,     r1,      0, 0,
             0,                 0,                 1, 0,
-            scale * (this.x - game.player.x - 0.1 * (r1 + r2)), scale * (this.y - game.player.y - 0.2 * (r1 - r2)), 1, 1
+            scale * (drawPos.x - 0.1 * (r1 + r2)), scale * (drawPos.y - 0.2 * (r1 - r2)), 1, 1
             // -(game.player.x * scale) + this.x * scale, -(game.player.y * scale) + this.y * scale, 1, 1
         ]);
 
@@ -201,7 +216,8 @@ export class MiniMap extends Item {
     }
 
     simulate(game: Game) {
-        const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
+        const { player } = game;
+        // const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
 
         if (this.grabbed) {
             this.fade =
@@ -210,7 +226,7 @@ export class MiniMap extends Item {
             if (this.fade > 1) {
                 return false;
             }
-        } else if (dx * dx + dy * dy < 0.05) {
+        } else if (player.position.dist2(this.position) < 0.05) {
             this.grabbed = Date.now();
             game.minimapActivated = Date.now();
         }
@@ -246,8 +262,8 @@ export class ProximityMine extends Enemy {
         game.proximityProgram.use();
 
         renderer.modelMat = setMatrix(
-            this.x - this.enemyScale / 2,
-            this.y - this.enemyScale / 2,
+            this.position.x - this.enemyScale / 2,
+            this.position.y - this.enemyScale / 2,
             this.enemyScale
         );
         renderer.setMatrices();
@@ -256,8 +272,8 @@ export class ProximityMine extends Enemy {
         game.explosionProgram.use();
 
         renderer.modelMat = setMatrix(
-            this.x - this.explosionScale / 2,
-            this.y - this.explosionScale / 2,
+            this.position.x - this.explosionScale / 2,
+            this.position.y - this.explosionScale / 2,
             this.explosionScale
         );
         renderer.setMatrices();
@@ -266,15 +282,17 @@ export class ProximityMine extends Enemy {
 
     simulate(game: Game) {
         const currentNode = game.grid.get(
-            Math.floor(this.x),
-            Math.floor(this.y)
+            Math.floor(this.position.x),
+            Math.floor(this.position.y)
         ) as Node;
         const player = game.player;
-        const { x, y } = player;
+        const { x, y } = player.position;
 
-        const [dx, dy] = [x - this.x, y - this.y];
-        const vec = normalize([dx, dy]);
-        const dist = dx * dx + dy * dy;
+
+        const fullVec = player.position.subtract(this.position);
+        // const [dx, dy] = [x - this.position.x, y - this.position.y];
+        const normalVec = fullVec.normalize();
+        const dist = fullVec.dist2();
 
         const lineOfSight = currentNode.passable(Math.floor(x), Math.floor(y));
 
@@ -287,8 +305,10 @@ export class ProximityMine extends Enemy {
                 if (dist > 0.001 && lineOfSight) {
                     const t = (Date.now() - this.startTime) / this.accelTime;
                     const speed = lerp(0, this.maxSpeed, t > 1 ? 1 : t);
-                    this.x = this.x + vec[0] * speed * state.delta;
-                    this.y = this.y + vec[1] * speed * state.delta;
+                    this.position = this.position.add(normalVec.multiply(speed * state.delta));
+
+                    // this.position.x = this.position.x + normalVec.x * speed * state.delta;
+                    // this.position.y = this.position.y + normalVec.y * speed * state.delta;
                 }
             } else if (delta < this.chaseTime + this.explodeTime) {
                 delta -= this.chaseTime;
@@ -310,8 +330,9 @@ export class ProximityMine extends Enemy {
 
                 for (const enemy of game.entities) {
                     if (enemy instanceof Shooter) {
-                        const [ex, ey] = [this.x - enemy.x, this.y - enemy.y];
-                        const enemyDist = ex * ex + ey * ey;
+                        const enemyVector = this.position.subtract(enemy.position);
+                        // const [ex, ey] = [this.x - enemy.x, this.y - enemy.y];
+                        const enemyDist = enemyVector.dist2();
                         if (
                             enemyDist <
                             Math.pow(
@@ -355,8 +376,8 @@ export class Shooter extends Enemy {
         game.shooterProgram.use();
 
         renderer.modelMat = setMatrix(
-            this.x - this.enemyScale / 2,
-            this.y - this.enemyScale / 2,
+            this.position.x - this.enemyScale / 2,
+            this.position.y - this.enemyScale / 2,
             this.enemyScale
         );
         renderer.setMatrices();
@@ -382,12 +403,13 @@ export class Shooter extends Enemy {
 
         if (Date.now() - this.prevShotTime > 1000) {
             this.prevShotTime = Date.now();
-            let vector = normalize([
-                game.player.x - this.x,
-                game.player.y - this.y
-            ]);
+            let vector = game.player.position.subtract(this.position).normalize();
+            // let vector = normalize([
+            //     game.player.x - this.x,
+            //     game.player.y - this.y
+            // ]);
 
-            const bullet = new Bullet(this.x, this.y);
+            const bullet = new Bullet(this.position.x, this.position.y);
             bullet.vector = vector;
 
             game.pendingEntities.push(bullet);

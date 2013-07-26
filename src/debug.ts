@@ -34,8 +34,8 @@ export function nodeToChar(node: Node): string {
     };
 
     for (const kid of node.children) {
-        const x = node.position[0] - kid.position[0];
-        const y = node.position[1] - kid.position[1];
+        const x = node.position.x - kid.position.x;
+        const y = node.position.y - kid.position.y;
         if (x === 1) {
             directions += LEFT;
         } else if (x === -1) {
