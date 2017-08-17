@@ -17,9 +17,14 @@
   },
   "homepage": "https://github.com/jacobgardner/js13k#readme",
   "devDependencies": {
-    "browserify": "^14.4.0",
+    "@types/node": "^8.0.23",
+    "browser-sync": "^2.18.13",
     "gulp": "^3.9.1",
-    "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.1.0"
+    "gulp-babel-minify": "^0.2.0",
+    "gulp-insert": "^0.5.0",
+    "gulp-rollup": "^2.14.0",
+    "gulp-sequence": "^0.4.6",
+    "gulp-typescript": "^3.2.1",
+    "typescript": "^2.4.2"
   }
 }
