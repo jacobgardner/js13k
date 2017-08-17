@@ -27,11 +27,14 @@
     "gulp": "^3.9.1",
     "gulp-babel-minify": "^0.2.0",
     "gulp-insert": "^0.5.0",
+    "gulp-preprocess": "^2.0.0",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.6.1",
     "gulp-rollup": "^2.14.0",
     "gulp-sequence": "^0.4.6",
+    "gulp-shadify": "0.0.7",
     "gulp-typescript": "^3.2.1",
+    "html-minifier": "^3.5.3",
     "through2": "^2.0.3",
     "typescript": "^2.4.2"
   }
