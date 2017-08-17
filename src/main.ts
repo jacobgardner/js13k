@@ -1,19 +1,10 @@
-import poop from './lib';
-(() => {
+import {win} from './globals';
+import {initGL} from './gl';
 
-const canvas = document.getElementById('canvas') as HTMLCanvasElement;
+const gl = initGL();
 
-function resize() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+function render() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
 }
 
-window.addEventListener('resize', resize);
-resize();
-
-const gl = canvas.getContext('webgl');
-
-poop();
-
-
-})()
+win.requestAnimationFrame(render);

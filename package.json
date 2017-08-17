@@ -18,13 +18,21 @@
   "homepage": "https://github.com/jacobgardner/js13k#readme",
   "devDependencies": {
     "@types/node": "^8.0.23",
+    "@types/through2": "^2.0.33",
     "browser-sync": "^2.18.13",
+    "glsl-deparser": "^1.0.0",
+    "glsl-min-stream": "^1.0.0",
+    "glsl-parser": "^2.0.0",
+    "glsl-tokenizer": "^2.1.2",
     "gulp": "^3.9.1",
     "gulp-babel-minify": "^0.2.0",
     "gulp-insert": "^0.5.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.6.1",
     "gulp-rollup": "^2.14.0",
     "gulp-sequence": "^0.4.6",
     "gulp-typescript": "^3.2.1",
+    "through2": "^2.0.3",
     "typescript": "^2.4.2"
   }
 }
