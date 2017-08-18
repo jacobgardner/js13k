@@ -31,6 +31,8 @@
     "gulp-sequence": "^0.4.6",
     "gulp-shadify": "0.0.7",
     "gulp-typescript": "^3.2.1",
+    "guppy-pre-commit": "^0.4.0",
+    "guppy-pre-push": "^0.2.1",
     "html-minifier": "^3.5.3",
     "prettier": "^1.5.3",
     "through2": "^2.0.3",
