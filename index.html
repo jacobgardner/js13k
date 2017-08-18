@@ -1,13 +1,1 @@
-<style>
-    body {
-        margin: 0;
-        background: #000;
-    }
-
-    canvas {
-        height: 100vmin;
-        width: 100vmin;
-    }
-</style>
-<canvas></canvas>
-<script src="./dist/bundle.js"></script>
+<style>body{margin:0;background:#000}canvas{height:100vmin;width:100vmin}</style><canvas></canvas><script>function a(a,b){let c=f.createShader(a?f.FRAGMENT_SHADER:f.VERTEX_SHADER);return f.shaderSource(c,b),f.compileShader(c),c}let b=window,c=document;let d="attribute vec3 a;uniform mat4 b,c;void main(){gl_Position=c*b*vec4(a,1.);}";var e={vertex:d,UniformRenaming:{uMVMatrix:"b",uPMatrix:"c"},AttributeRenaming:{aVertexPosition:"a"}};let f;c.title="Lst";let g=function(){function g(){let a=b.innerWidth,c=b.innerHeight;h.width=a,h.height=c,f.viewport(0,0,a,c)}let h=c.querySelector("canvas");f=h.getContext("webgl"),b.onresize=g,g(),f.clearColor(0,0,0,1);for(let b of[e]){if(b.vertex){let c=a(0,b.vertex);b.vertex=c}if(b.fragment){let c=a(0,b.fragment);b.fragment=c}}return d,f}();b.requestAnimationFrame(function(){g.clear(g.COLOR_BUFFER_BIT)})</script>
