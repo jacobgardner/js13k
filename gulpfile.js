@@ -2,10 +2,11 @@ const gulp = require("gulp");
 const browserSync = require("browser-sync").create();
 const sequence = require("gulp-sequence");
 
-require("./tasks/scripts");
-require("./tasks/shaders");
+require('./tasks');
 
-gulp.task("build", sequence("build-shaders", "build-scripts", "reload"));
+gulp.task("build", (cb) => {
+    sequence("build-shaders", "build-scripts", "reload")(cb);
+});
 
 gulp.task("reload", () => {
     browserSync.reload();

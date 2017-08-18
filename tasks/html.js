@@ -10,10 +10,12 @@ module.exports = {
 
                 let contents = buffer.toString();
 
-                contents = contents.replace(
-                    /<script src=".*"><\/script>/,
-                    `<script>${file.contents.toString()}</script>`
-                );
+                contents = contents
+                    .replace(
+                        /<script src=".*"><\/script>/,
+                        `<script>${file.contents.toString()}</script>`
+                    )
+                    .replace(/<\/?(body|html|head)>/g, "");
 
                 // TODO: Minify HTML
                 file.contents = new Buffer(
