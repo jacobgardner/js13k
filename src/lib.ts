@@ -1,9 +1,8 @@
-
 function pooper() {
     console.log('pooper');
 }
 
-export default function () {
+export default function() {
     pooper();
     console.log('poop');
 }

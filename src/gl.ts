@@ -1,5 +1,5 @@
-import {win, doc} from './globals';
-import {buildShader} from './shader'
+import { win, doc } from './globals';
+import { buildShader } from './shader';
 
 import * as characterShader from './shaders/character';
 
@@ -9,7 +9,7 @@ interface ObjectShader {
 }
 
 // OPTIMIZE: Remove = null on final build
-export let gl: WebGLRenderingContext;// = (null as any) as WebGLRenderingContext;
+export let gl: WebGLRenderingContext; // = (null as any) as WebGLRenderingContext;
 
 export function initGL() {
     const canvas = doc.querySelector('canvas') as HTMLCanvasElement;
@@ -21,7 +21,7 @@ export function initGL() {
     //  we have to do this anyway, but possibly will need to remove;
     function resize() {
         const width = win.innerWidth;
-        const height = win.innerHeight
+        const height = win.innerHeight;
         canvas.width = width;
         canvas.height = height;
         gl.viewport(0, 0, width, height);
@@ -35,7 +35,7 @@ export function initGL() {
     // Setup Buffers etc.
     gl.clearColor(0, 0, 0, 1);
 
-    for (const shader  of [characterShader] as ObjectShader[]) {
+    for (const shader of [characterShader] as ObjectShader[]) {
         if (shader.vertex) {
             shader.vertex = buildShader(0, shader.vertex) as any;
         }
@@ -44,8 +44,7 @@ export function initGL() {
             shader.fragment = buildShader(0, shader.fragment) as any;
         }
     }
-    characterShader.vertex
-
+    characterShader.vertex;
 
     return gl;
 }
