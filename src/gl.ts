@@ -37,7 +37,7 @@ export function initGL() {
 
     for (const shader of [characterShader] as ObjectShader[]) {
         if (shader.vertex) {
-            shader.vertex =                          buildShader(0, shader.vertex) as any;
+            shader.vertex = buildShader(0, shader.vertex) as any;
         }
 
         if (shader.fragment) {
