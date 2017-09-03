@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp serve"
   },
   "repository": {
     "type": "git",
@@ -30,7 +30,9 @@
     "gulp-rollup": "^2.14.0",
     "gulp-sequence": "^0.4.6",
     "gulp-shadify": "0.0.7",
+    "gulp-sourcemaps": "^2.6.1",
     "gulp-typescript": "^3.2.1",
+    "gulp-zip": "^4.0.0",
     "guppy-pre-commit": "^0.4.0",
     "guppy-pre-push": "^0.2.1",
     "html-minifier": "^3.5.3",
