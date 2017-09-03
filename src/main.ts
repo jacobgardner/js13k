@@ -13,7 +13,14 @@ const renderer = new Renderer();
 const m = new Maze(renderer);
 
 // @if DEBUG
-console.log('%c' + m.toString(), 'font-size: 14px;', 'font-size: 14px;color: #009900; font-weight: bolder;', 'font-size: 14px;color: #000000; font-weight: normal;', 'font-size: 14px;color: #990000; font-weight: bolder;', 'font-size: 14px;color: #000000; font-weight: normal');
+console.log(
+    '%c' + m.toString(),
+    'font-size: 14px;',
+    'font-size: 14px;color: #009900; font-weight: bolder;',
+    'font-size: 14px;color: #000000; font-weight: normal;',
+    'font-size: 14px;color: #990000; font-weight: bolder;',
+    'font-size: 14px;color: #000000; font-weight: normal'
+);
 // @endif
 
 // This doesn't work because imports are hoisted....
