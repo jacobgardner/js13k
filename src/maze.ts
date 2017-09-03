@@ -28,7 +28,7 @@ export default class Maze {
 
     setMatricies() {
         const gl = this.renderer.gl;
-        gl.uniform4fv();
+        // gl.uniform4fv();
     }
 
     draw() {}
