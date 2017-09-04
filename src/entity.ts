@@ -18,7 +18,6 @@ export class Bullet implements Entity {
     vector: [number, number];
     constructor(public x: number, public y: number) {}
     draw(game: Game) {
-        console.log('Drawing');
         const renderer = game.renderer;
         const gl = renderer.gl;
         game.bulletShaders.use();
@@ -37,14 +36,17 @@ export class Bullet implements Entity {
         const dx = this.x + this.vector[0] * this.bulletSpeed * state.delta;
         const dy = this.y + this.vector[1] * this.bulletSpeed * state.delta;
 
-        const current = game.grid.get(Math.floor(this.x), Math.floor(this.y)) as Node;
+        const current = game.grid.get(
+            Math.floor(this.x),
+            Math.floor(this.y)
+        ) as Node;
         const player = game.player;
         if (current.passable(dx, dy)) {
             // Check for player collision
 
             const a = dx - player.x;
             const b = dy - player.y;
-            if ( (a * a) + (b * b) <  0.08 * 0.08) {
+            if (a * a + b * b < 0.08 * 0.08) {
                 player.hp -= 0.15;
                 return false;
             }

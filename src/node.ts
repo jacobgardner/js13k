@@ -48,7 +48,10 @@ export default class Node {
         }
 
         for (const kid of this.children) {
-            if (kid.position[0] === Math.floor(x) && kid.position[1] === Math.floor(y)) {
+            if (
+                kid.position[0] === Math.floor(x) &&
+                kid.position[1] === Math.floor(y)
+            ) {
                 return true;
             }
         }
@@ -86,4 +89,3 @@ export default class Node {
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 }
-
