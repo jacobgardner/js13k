@@ -1,5 +1,5 @@
 import buildGrid, { Grid, Node } from './grid';
-import { SIZE_X, SIZE_Y } from './config';
+import { SIZE_X, SIZE_Y, TRANSITION } from './config';
 import Renderer, { Program } from './renderer';
 import { vertex, hallFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
@@ -61,8 +61,17 @@ export default class Maze {
                 const classified = classifyNode(node);
                 gl.uniform1i(
                     this.program.squareState,
-                    node === this.start ? 0 : node === this.end ? 1 : node.touched ? 2 : 3
+                    node === this.start
+                        ? 0
+                        : node === this.end ? 1 : node.touched ? 2 : 3
                 );
+
+                let t = !node.time ? 0 : (Date.now() - node.time) / TRANSITION;
+                if (t > 1) {
+                    t = 1;
+                }
+
+                gl.uniform1f(this.program.t, t);
                 gl.uniform4iv(this.program.squareType, [
                     LEFT & classified,
                     UP & classified,

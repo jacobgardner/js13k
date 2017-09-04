@@ -126,6 +126,10 @@ function processInput() {
     }
 
     current.touched = false;
+
+    if (!current.time) {
+        current.time = Date.now();
+    }
 }
 
 onkeydown = evt => {
@@ -144,11 +148,22 @@ function render() {
 
     const scale = 12;
     renderer.camera = new Float32Array([
-        scale, 0, 0, 0,
-        0, scale, 0, 0,
-        0, 0, 1, 0,
-        -scale * player.x, -scale * player.y, 1, 1
-
+        scale,
+        0,
+        0,
+        0,
+        0,
+        scale,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -scale * player.x,
+        -scale * player.y,
+        1,
+        1
     ]);
 
     maze.draw();

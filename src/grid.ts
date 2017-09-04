@@ -7,6 +7,7 @@ export class Node {
     touched: boolean = false;
     position: number[];
     length: number = 0;
+    time?: number = 0;
 
     constructor(x: number, y: number) {
         this.position = [x, y];
