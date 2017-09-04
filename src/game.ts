@@ -1,7 +1,7 @@
 import buildGrid, { Grid, Node } from './grid';
-import { SIZE_X, SIZE_Y, TRANSITION, PLAYER_SPEED } from './config';
+import { SIZE_X, SIZE_Y, TRANSITION, PLAYER_SPEED, RENDER_AOE } from './config';
 import Renderer, { Program } from './renderer';
-import { vertex, hallFrag } from './shaders/shaders';
+import { vertex, hallFrag, enemyFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 import { buildEntities, Entity, Enemy } from './entity';
 import { random } from './random';
@@ -11,61 +11,44 @@ import Player from './player';
 import { nodeToChar, drawMatrix } from './debug';
 // @endif
 
-const LEFT = 1;
-const RIGHT = 2;
-const UP = 4;
-const DOWN = 8;
 
 interface Map<T> {
     [key: string]: T;
-}
-
-function classifyNode(node: Node): number {
-    let number = 0;
-    for (const kid of node.children) {
-        const x = node.position[0] - kid.position[0];
-        const y = node.position[1] - kid.position[1];
-        if (x === 1) {
-            number += LEFT;
-        } else if (x === -1) {
-            number += RIGHT;
-        } else if (y === 1) {
-            number += UP;
-        } else {
-            number += DOWN;
-        }
-    }
-
-    return number;
 }
 
 export default class Game {
     grid: Grid;
     start: Node;
     end: Node;
-    program: Program;
     entities: Entity[] = [];
     player: Player;
     downMap: Map<number> = {};
 
+    mazeShaders: Program;
+    enemyShaders: Program;
+
+
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
-        this.program = new Program(renderer, vertex, hallFrag);
+        this.mazeShaders = new Program(renderer, vertex, hallFrag);
+        this.enemyShaders = new Program(renderer, vertex, enemyFrag);
 
         for (const key in this.grid) {
             const node = this.grid[key] as Node;
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
-                const entityCount = random(0, node.distance);
+                const entityCount = random(0, 3);
                 for (let i = 0; i < entityCount; i += 1) {
                     const enemy = new Enemy(
-                        node.position[0] + Math.random(),
-                        node.position[0] + Math.random()
+                        node.position[0] + 0.2 + Math.random() * 0.6,
+                        node.position[1] + 0.2 + Math.random() * 0.6
                     );
                     this.entities.push(enemy);
                 }
             }
         }
+
+        console.log(this.entities);
 
         onkeydown = evt => {
             this.downMap[evt.key.toLowerCase()] = 1;
@@ -151,47 +134,21 @@ export default class Game {
             -SCALE * player.x, -SCALE * player.y, 1, 1
         ]);
 
-        this.program.use();
         const gl = this.renderer.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
-        gl.vertexAttribPointer(this.program.vertPos, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(this.mazeShaders.vertPos, 2, gl.FLOAT, false, 0, 0);
 
-        for (let x = 0; x < SIZE_X; x += 1) {
-            for (let y = 0; y < SIZE_Y; y += 1) {
-                this.renderer.modelMat = setMatrix(x, y);
-                this.renderer.setMatrices();
-
-                const node = this.grid.get(x, y) as Node;
-                const classified = classifyNode(node);
-                gl.uniform1i(
-                    this.program.squareState,
-                    node === this.start
-                        ? 0
-                        : node === this.end ? 1 : node.touched ? 2 : 3
-                );
-
-                let t = !node.time ? 0 : (Date.now() - node.time) / TRANSITION;
-                if (t > 1) {
-                    t = 1;
-                }
-
-                gl.uniform1f(this.program.t, t);
-                gl.uniform4iv(this.program.squareType, [
-                    LEFT & classified,
-                    UP & classified,
-                    RIGHT & classified,
-                    DOWN & classified
-                ]);
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-            }
-        }
+        this.grid.draw(this);
 
         const removedEntities: Entity[] = [];
-
         for (const entity of this.entities) {
+            if (Math.abs(player.x - entity.x) > RENDER_AOE || Math.abs(player.y - entity.y) > RENDER_AOE) {
+                continue;
+            }
+
             const alive = entity.simulate(this);
             if (alive) {
-                entity.draw();
+                entity.draw(this);
             }
         }
 

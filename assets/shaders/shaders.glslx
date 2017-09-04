@@ -25,13 +25,15 @@ export void playerFrag() {
 
     float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
 
-    gl_FragColor = vec4(1, 0, 0, alpha);
-    // if (dot(offset, offset) < 0.1) {
-    //     gl_FragColor = vec4(1, 0, 0, 1);
-    // } else {
-    //     gl_FragColor = vec4(1, 0, 0, 0);
-    // }
+    gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), t);
+}
 
+export void enemyFrag() {
+    vec2 offset = squarePos - 0.5;
+
+    float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
+
+    gl_FragColor = vec4(1, 0, 0, alpha);
 }
 
 export void hallFrag() {

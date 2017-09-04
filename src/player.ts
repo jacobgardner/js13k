@@ -6,6 +6,7 @@ import { setMatrix } from './lib';
 const PLAYER_SCALE = 0.4;
 
 export default class Player {
+    hp: number = 1;
     x: number;
     y: number;
     program: Program;
@@ -23,6 +24,8 @@ export default class Player {
         this.program.use();
         const gl = this.renderer.gl;
 
+        // this.hp = Date.now() % 500 / 500;
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
         gl.vertexAttribPointer(this.program.vertPos, 2, gl.FLOAT, false, 0, 0);
 
@@ -32,6 +35,7 @@ export default class Player {
             PLAYER_SCALE
         );
         this.renderer.setMatrices();
+        gl.uniform1f(this.program.t, this.hp);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 }
