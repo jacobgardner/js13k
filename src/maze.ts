@@ -1,19 +1,23 @@
 import buildGrid, { Grid, Node } from './grid';
-import { SIZE_X, SIZE_Y, TRANSITION } from './config';
+import { SIZE_X, SIZE_Y, TRANSITION, PLAYER_SPEED } from './config';
 import Renderer, { Program } from './renderer';
 import { vertex, hallFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 // @if DEBUG
 import { nodeToChar, drawMatrix } from './debug';
 import { buildEntities, Entity, Enemy } from './entity';
-import { random } from "./random";
-import Player from "./player";
+import { random } from './random';
+import Player from './player';
 // @endif
 
 const LEFT = 1;
 const RIGHT = 2;
 const UP = 4;
 const DOWN = 8;
+
+interface Map<T> {
+    [key: string]: T;
+}
 
 function classifyNode(node: Node): number {
     let number = 0;
@@ -41,6 +45,7 @@ export default class Game {
     program: Program;
     entities: Entity[] = [];
     player: Player;
+    downMap: Map<number> = {};
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
@@ -52,16 +57,99 @@ export default class Game {
                 // we can pass in difficulty or whatever here
                 const entityCount = random(0, node.distance);
                 for (let i = 0; i < entityCount; i += 1) {
-                    const enemy = new Enemy(node.position[0] + Math.random(), node.position[0] + Math.random());
+                    const enemy = new Enemy(
+                        node.position[0] + Math.random(),
+                        node.position[0] + Math.random()
+                    );
                     this.entities.push(enemy);
                 }
             }
         }
 
+        onkeydown = evt => {
+            this.downMap[evt.key.toLowerCase()] = 1;
+        };
+
+        onkeyup = evt => {
+            this.downMap[evt.key.toLowerCase()] = 0;
+        };
+
         this.player = new Player(renderer, this);
     }
 
+    processInput() {
+        const { player, grid, downMap } = this;
+        let [x, y] = [player.x, player.y];
+
+        const px = player.x;
+        const py = player.y;
+        const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
+        const buffer = 0.3;
+
+        function update(x: number, y: number, cx: number, cy: number) {
+            const node = grid.get(Math.floor(cx), Math.floor(cy)) as Node;
+            if (current.children.indexOf(node) !== -1) {
+                player.x = x;
+                player.y = y;
+                return true;
+            }
+            return false;
+        }
+
+        if (downMap.w) {
+            y -= PLAYER_SPEED;
+        }
+
+        if (downMap.s) {
+            y += PLAYER_SPEED;
+        }
+
+        if (downMap.a) {
+            x -= PLAYER_SPEED;
+        }
+
+        if (downMap.d) {
+            x += PLAYER_SPEED;
+        }
+
+        if (Math.floor(x) !== Math.floor(px)) {
+            const node = grid.get(Math.floor(x), Math.floor(py)) as Node;
+            if (current.children.indexOf(node) !== -1) {
+                player.x = x;
+            }
+        } else {
+            player.x = x;
+        }
+
+        if (Math.floor(y) !== Math.floor(py)) {
+            const node = grid.get(Math.floor(px), Math.floor(y)) as Node;
+            if (current.children.indexOf(node) !== -1) {
+                player.y = y;
+            }
+        } else {
+            player.y = y;
+        }
+
+        current.touched = false;
+
+        if (!current.time) {
+            current.time = Date.now();
+        }
+    }
+
     draw() {
+        this.processInput();
+
+        const SCALE = 12;
+        const player = this.player;
+        // prettier-ignore
+        this.renderer.camera = new Float32Array([
+            SCALE,             0,                 0, 0,
+            0,                 SCALE,             0, 0,
+            0,                 0,                 1, 0,
+            -SCALE * player.x, -SCALE * player.y, 1, 1
+        ]);
+
         this.program.use();
         const gl = this.renderer.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
@@ -102,6 +190,8 @@ export default class Game {
         for (const entity of this.entities) {
             entity.draw();
         }
+
+        player.draw();
     }
 
     // @if DEBUG

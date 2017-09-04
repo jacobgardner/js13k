@@ -5,13 +5,9 @@ export interface Entity {
 }
 
 export class Enemy implements Entity {
-    constructor(public x: number, public y: number) {
+    constructor(public x: number, public y: number) {}
 
-    }
-
-    draw() {
-
-    }
+    draw() {}
 
     simulate() {
         return true;
