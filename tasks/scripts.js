@@ -18,6 +18,11 @@ function isProduction() {
     return env === 'production';
 }
 
+function isDeploy() {
+    const env = process.env['DEPLOY'] || 'false';
+    return env === 'true';
+}
+
 gulp.task('build-scripts', () => {
     const context = { DEBUG: isProduction() === false };
 
@@ -55,7 +60,10 @@ gulp.task('build-scripts', () => {
             .pipe(replace(/\bconst\b/g, 'let'))
             .pipe(generateHTML())
             .pipe(rename('index.html'))
-            .pipe(zip('i.zip'));
+
+        if (!isDeploy()) {
+            stream.pipe(zip('i.zip'));
+        }
     } else {
         stream = stream.pipe(rename('bundle.js')).pipe(sourcemaps.write());
     }

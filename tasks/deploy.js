@@ -4,6 +4,7 @@ const sequence = require("gulp-sequence");
 
 gulp.task("release", () => {
     process.env["NODE_ENV"] = "production";
+    process.env["DEPLOY"] = "true";
 });
 
 gulp.task("deploy-html", () => {
