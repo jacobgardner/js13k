@@ -1,5 +1,5 @@
 import Renderer, { Program } from './renderer';
-import Game from './maze';
+import Game from './game';
 import { vertex, playerFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 

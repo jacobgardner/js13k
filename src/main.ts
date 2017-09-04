@@ -2,7 +2,7 @@ import { win, doc } from './globals';
 import { initGL } from './gl';
 import Renderer from './renderer';
 
-import Game from './maze';
+import Game from './game';
 import { Node } from './grid';
 import { SIZE_X, SIZE_Y, PLAYER_SPEED } from './config';
 import { setMatrix } from './lib';

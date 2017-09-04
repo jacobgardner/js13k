@@ -3,11 +3,12 @@ import { SIZE_X, SIZE_Y, TRANSITION, PLAYER_SPEED } from './config';
 import Renderer, { Program } from './renderer';
 import { vertex, hallFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
-// @if DEBUG
-import { nodeToChar, drawMatrix } from './debug';
 import { buildEntities, Entity, Enemy } from './entity';
 import { random } from './random';
 import Player from './player';
+
+// @if DEBUG
+import { nodeToChar, drawMatrix } from './debug';
 // @endif
 
 const LEFT = 1;
@@ -158,8 +159,6 @@ export default class Game {
         for (let x = 0; x < SIZE_X; x += 1) {
             for (let y = 0; y < SIZE_Y; y += 1) {
                 this.renderer.modelMat = setMatrix(x, y);
-                // drawMatrix(this.renderer.modelMat);
-                // drawMatrix(this.renderer.camera);
                 this.renderer.setMatrices();
 
                 const node = this.grid.get(x, y) as Node;
@@ -187,8 +186,17 @@ export default class Game {
             }
         }
 
+        const removedEntities: Entity[] = [];
+
         for (const entity of this.entities) {
-            entity.draw();
+            const alive = entity.simulate(this);
+            if (alive) {
+                entity.draw();
+            }
+        }
+
+        for (const entity of removedEntities) {
+            this.entities.splice(this.entities.indexOf(entity), 1);
         }
 
         player.draw();

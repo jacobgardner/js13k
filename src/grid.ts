@@ -1,6 +1,7 @@
 import { random, shuffle, randomPop } from './random';
 import { SIZE_X, SIZE_Y } from './config';
 import { Entity } from './entity';
+import Game from './game';
 
 export class Node {
     untouched: Node[] = [];
@@ -12,6 +13,10 @@ export class Node {
 
     constructor(x: number, y: number) {
         this.position = [x, y];
+    }
+
+    draw(game: Game) {
+
     }
 }
 

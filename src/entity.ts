@@ -1,7 +1,9 @@
+import Game from './game';
+
 export interface Entity {
     draw(): void;
     // Return false on remove
-    simulate(): boolean;
+    simulate(game: Game): boolean;
 }
 
 export class Enemy implements Entity {
