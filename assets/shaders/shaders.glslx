@@ -36,6 +36,14 @@ export void enemyFrag() {
     gl_FragColor = vec4(1, 0, 0, alpha);
 }
 
+export void bulletFrag() {
+    vec2 offset = squarePos - 0.5;
+
+    float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
+
+    gl_FragColor = vec4(0, 0, 0, alpha);
+}
+
 export void hallFrag() {
     vec4 wall = vec4(0, 0, 0, 1);
     vec4 hall = vec4(1, 1, 1, 1);

@@ -40,6 +40,22 @@ export default class Node {
         return directions;
     }
 
+    passable(x: number, y: number): boolean {
+        x = Math.floor(x);
+        y = Math.floor(y);
+        if (this.position[0] === x && this.position[1] === y) {
+            return true;
+        }
+
+        for (const kid of this.children) {
+            if (kid.position[0] === Math.floor(x) && kid.position[1] === Math.floor(y)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     draw(game: Game) {
         const [x, y] = this.position;
         const renderer = game.renderer;

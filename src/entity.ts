@@ -1,5 +1,7 @@
 import Game from './game';
 import { setMatrix } from './lib';
+import { state } from './globals';
+import Node from './node';
 
 export interface Entity {
     x: number;
@@ -11,15 +13,54 @@ export interface Entity {
 }
 
 export class Bullet implements Entity {
+    bulletScale: number = 0.4;
+    bulletSpeed: number = 0.4 / this.bulletScale;
+    vector: [number, number];
     constructor(public x: number, public y: number) {}
-    draw() { }
-    simulate() {
-        return true;
+    draw(game: Game) {
+        console.log('Drawing');
+        const renderer = game.renderer;
+        const gl = renderer.gl;
+        game.bulletShaders.use();
+
+        renderer.modelMat = setMatrix(
+            this.x - this.bulletScale / 2,
+            this.y - this.bulletScale / 2,
+            this.bulletScale
+        );
+        renderer.setMatrices();
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    simulate(game: Game) {
+        const dx = this.x + this.vector[0] * this.bulletSpeed * state.delta;
+        const dy = this.y + this.vector[1] * this.bulletSpeed * state.delta;
+
+        const current = game.grid.get(Math.floor(this.x), Math.floor(this.y)) as Node;
+        const player = game.player;
+        if (current.passable(dx, dy)) {
+            // Check for player collision
+
+            const a = dx - player.x;
+            const b = dy - player.y;
+            if ( (a * a) + (b * b) <  0.08 * 0.08) {
+                player.hp -= 0.15;
+                return false;
+            }
+
+            this.x = dx;
+            this.y = dy;
+            return true;
+        }
+
+        return false;
     }
 }
 
 export class Enemy implements Entity {
     enemyScale: number = 1.5;
+    prevShotTime: number = Date.now();
     constructor(public x: number, public y: number) {}
 
     draw(game: Game) {
@@ -27,13 +68,28 @@ export class Enemy implements Entity {
         const gl = renderer.gl;
         game.enemyShaders.use();
 
-        renderer.modelMat = setMatrix(this.x - this.enemyScale / 2, this.y - this.enemyScale / 2, this.enemyScale);
+        renderer.modelMat = setMatrix(
+            this.x - this.enemyScale / 2,
+            this.y - this.enemyScale / 2,
+            this.enemyScale
+        );
         renderer.setMatrices();
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 
-    simulate() {
+    simulate(game: Game) {
+        if (Date.now() - this.prevShotTime > 1000) {
+            this.prevShotTime = Date.now();
+            let [vx, vy] = [game.player.x - this.x, game.player.y - this.y];
+
+            const length = Math.sqrt(vx * vx + vy * vy);
+
+            const bullet = new Bullet(this.x, this.y);
+            bullet.vector = [vx / length, vy / length];
+
+            game.pendingEntities.push(bullet);
+        }
         return true;
     }
 }

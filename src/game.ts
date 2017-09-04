@@ -2,7 +2,7 @@ import buildGrid, { Grid } from './grid';
 import Node from './node';
 import { SIZE_X, SIZE_Y, RENDER_AOE } from './config';
 import Renderer, { Program } from './renderer';
-import { vertex, hallFrag, enemyFrag } from './shaders/shaders';
+import { vertex, hallFrag, enemyFrag, bulletFrag } from './shaders/shaders';
 import { Entity, Enemy } from './entity';
 import { random } from './random';
 import Player from './player';
@@ -21,16 +21,19 @@ export default class Game {
     start: Node;
     end: Node;
     entities: Entity[] = [];
+    pendingEntities: Entity[] = [];
     player: Player;
     downMap: Map<number> = {};
 
     mazeShaders: Program;
     enemyShaders: Program;
+    bulletShaders: Program;
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
         this.mazeShaders = new Program(renderer, vertex, hallFrag);
         this.enemyShaders = new Program(renderer, vertex, enemyFrag);
+        this.bulletShaders = new Program(renderer, vertex, bulletFrag);
 
         for (const key in this.grid) {
             const node = this.grid[key] as Node;
@@ -94,21 +97,11 @@ export default class Game {
             x += player.speed * state.delta;
         }
 
-        if (Math.floor(x) !== Math.floor(px)) {
-            const node = grid.get(Math.floor(x), Math.floor(py)) as Node;
-            if (current.children.indexOf(node) !== -1) {
-                player.x = x;
-            }
-        } else {
+        if (Math.floor(x) === Math.floor(px) || current.passable(x, py)) {
             player.x = x;
         }
 
-        if (Math.floor(y) !== Math.floor(py)) {
-            const node = grid.get(Math.floor(px), Math.floor(y)) as Node;
-            if (current.children.indexOf(node) !== -1) {
-                player.y = y;
-            }
-        } else {
+        if (Math.floor(y) === Math.floor(py) || current.passable(px, y)) {
             player.y = y;
         }
 
@@ -148,6 +141,8 @@ export default class Game {
         this.grid.draw(this);
 
         const removedEntities: Entity[] = [];
+        this.entities = this.entities.concat(this.pendingEntities);
+        this.pendingEntities = [];
         for (const entity of this.entities) {
             if (
                 Math.abs(player.x - entity.x) > RENDER_AOE ||
@@ -159,6 +154,8 @@ export default class Game {
             const alive = entity.simulate(this);
             if (alive) {
                 entity.draw(this);
+            } else {
+                removedEntities.push(entity);
             }
         }
 
