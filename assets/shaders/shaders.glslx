@@ -22,7 +22,7 @@ export void vertex() {
 export void playerFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = circularIn(distance(vec2(0, 0), offset / 0.4));
+    float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
 
     gl_FragColor = vec4(1, 0, 0, alpha);
     // if (dot(offset, offset) < 0.1) {
@@ -46,16 +46,16 @@ export void hallFrag() {
     }
 
     vec4 color = hall;
-    if (squareType[0] == 0 && squarePos.x < 0.1) {
+    if (squareType[0] == 0 && squarePos.x < 0.01) {
         color = wall;
     }
-    if (squareType[2] == 0 && squarePos.x > 0.9) {
+    if (squareType[2] == 0 && squarePos.x > 0.99) {
         color = wall;
     }
-    if (squareType[1] == 0 && squarePos.y < 0.1) {
+    if (squareType[1] == 0 && squarePos.y < 0.01) {
         color = wall;
     }
-    if (squareType[3] == 0 && squarePos.y > 0.9) {
+    if (squareType[3] == 0 && squarePos.y > 0.99) {
         color = wall;
     }
 

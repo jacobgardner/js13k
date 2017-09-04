@@ -6,6 +6,7 @@ import Maze from './maze';
 import { Node } from './grid';
 import { SIZE_X, SIZE_Y, PLAYER_SPEED } from './config';
 import Player from './player';
+import { setMatrix } from './lib';
 
 // Intentionally mispelled for the extra byte!
 doc.title = 'Lst';
@@ -38,39 +39,82 @@ const downMap: Map<number> = {};
 
 function processInput() {
     let [x, y] = [player.x, player.y];
-    if (downMap.w) {
-        y -= PLAYER_SPEED;
-    }
-
-    if (downMap.s) {
-        y += PLAYER_SPEED;
-    }
-
-    if (downMap.a) {
-        x -= PLAYER_SPEED;
-    }
-
-    if (downMap.d) {
-        x += PLAYER_SPEED;
-    }
 
     const px = player.x;
     const py = player.y;
     const current = maze.grid.get(Math.floor(px), Math.floor(py)) as Node;
     const buffer = 0.3;
+
+    function update(x: number, y: number, cx: number, cy: number) {
+        const node = maze.grid.get(Math.floor(cx), Math.floor(cy)) as Node;
+        if (current.children.indexOf(node) !== -1) {
+            player.x = x;
+            player.y = y;
+            return true;
+        }
+        return false;
+    }
+
+    if (downMap.w) {
+        y -= PLAYER_SPEED;
+        // if (Math.floor(y - buffer) < Math.floor(py)) {
+        //     update(px, y, px, y - buffer);
+        // } else {
+        //     player.y = y;
+        // }
+    }
+
+    if (downMap.s) {
+        y += PLAYER_SPEED;
+        // if (Math.floor(y + buffer) > Math.floor(py)) {
+        //     update(px, y, px, y + buffer);
+        // } else {
+        //     player.y = y;
+        // }
+    }
+
+    if (downMap.a) {
+        x -= PLAYER_SPEED;
+        // if (Math.floor(x - buffer) < Math.floor(px)) {
+        //     update(x, py, x - buffer, py);
+        // } else {
+        //     player.x = x;
+        // }
+    }
+
+    if (downMap.d) {
+        x += PLAYER_SPEED;
+        // if (Math.floor(x + buffer) > Math.floor(px)) {
+        //     update(x, py, x + buffer, py);
+        // } else {
+        //     player.x = x;
+        // }
+    }
+
+    // if (Math.floor(x - buffer) < Math.floor(px)) {
+    //     safe = update(x, py, x - buffer, py);
+    // } else if (Math.floor(x + buffer) > Math.floor(px)) {
+    //     safe = update(x, py, x + buffer, py);
+    // } else {
+    //     player.x = x;
+    // }
+
     if (Math.floor(x) !== Math.floor(px)) {
         const node = maze.grid.get(Math.floor(x), Math.floor(py)) as Node;
         if (current.children.indexOf(node) !== -1) {
             player.x = x;
         }
-        // } else if (Math.floor(x + buffer) > Math.floor(px)) {
-        //     const node = maze.grid.get(Math.floor(x + buffer), Math.floor(py)) as Node;
-        //     if (current.children.indexOf(node) !== -1) {
-        //         player.x = x;
-        //     }
     } else {
         player.x = x;
     }
+
+    // if (Math.floor(y - buffer) < Math.floor(py)) {
+    //     update(px, y, px, y - buffer);
+    // } else if (Math.floor(y + buffer) > Math.floor(py)) {
+    //     update(px, y, px, y + buffer);
+    // } else {
+    //     player.y = y;
+    // }
 
     if (Math.floor(y) !== Math.floor(py)) {
         const node = maze.grid.get(Math.floor(px), Math.floor(y)) as Node;
@@ -81,7 +125,7 @@ function processInput() {
         player.y = y;
     }
 
-   current.touched = false;
+    current.touched = false;
 }
 
 onkeydown = evt => {
@@ -97,6 +141,15 @@ function render() {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     processInput();
+
+    const scale = 12;
+    renderer.camera = new Float32Array([
+        scale, 0, 0, 0,
+        0, scale, 0, 0,
+        0, 0, 1, 0,
+        -scale * player.x, -scale * player.y, 1, 1
+
+    ]);
 
     maze.draw();
     player.draw();
