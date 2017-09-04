@@ -1,5 +1,5 @@
 // @if DEBUG
-import { Node } from './grid';
+import Node from './node';
 
 const LEFT = 1;
 const RIGHT = 2;

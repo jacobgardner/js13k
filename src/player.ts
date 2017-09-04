@@ -2,19 +2,21 @@ import Renderer, { Program } from './renderer';
 import Game from './game';
 import { vertex, playerFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
+import { INITIAL_PLAYER_SPEED } from './config';
 
 const PLAYER_SCALE = 0.4;
 
 export default class Player {
     hp: number = 1;
+    speed: number = INITIAL_PLAYER_SPEED / PLAYER_SCALE;
     x: number;
     y: number;
     program: Program;
 
     constructor(public renderer: Renderer, public maze: Game) {
         [this.x, this.y] = [
-            maze.start.position[0] + 0.5,
-            maze.start.position[1] + 0.5
+            maze.start.position[0] + 0.501,
+            maze.start.position[1] + 0.501
         ];
 
         this.program = new Program(renderer, vertex, playerFrag);

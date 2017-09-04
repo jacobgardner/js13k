@@ -86,8 +86,10 @@ export default class Renderer {
     }
 
     use(program: Program) {
-        this.currentProgram = program;
-        gl.useProgram(program.shaderProgram);
+        if (this.currentProgram !== program) {
+            this.currentProgram = program;
+            gl.useProgram(program.shaderProgram);
+        }
     }
 
     setMatrices() {

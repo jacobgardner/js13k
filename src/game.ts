@@ -1,5 +1,6 @@
-import buildGrid, { Grid, Node } from './grid';
-import { SIZE_X, SIZE_Y, TRANSITION, PLAYER_SPEED, RENDER_AOE } from './config';
+import buildGrid, { Grid } from './grid';
+import Node from './node';
+import { SIZE_X, SIZE_Y, TRANSITION, RENDER_AOE } from './config';
 import Renderer, { Program } from './renderer';
 import { vertex, hallFrag, enemyFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
@@ -9,6 +10,7 @@ import Player from './player';
 
 // @if DEBUG
 import { nodeToChar, drawMatrix } from './debug';
+import { state } from "./globals";
 // @endif
 
 
@@ -70,30 +72,30 @@ export default class Game {
         const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
         const buffer = 0.3;
 
-        function update(x: number, y: number, cx: number, cy: number) {
-            const node = grid.get(Math.floor(cx), Math.floor(cy)) as Node;
+        function update(x: number, y: number, dx: number, dy: number) {
+            const node = grid.get(Math.floor(x), Math.floor(y)) as Node;
             if (current.children.indexOf(node) !== -1) {
-                player.x = x;
-                player.y = y;
+                player.x = dx;
+                player.y = dy;
                 return true;
             }
             return false;
         }
 
         if (downMap.w) {
-            y -= PLAYER_SPEED;
+            y -= player.speed * state.delta;
         }
 
         if (downMap.s) {
-            y += PLAYER_SPEED;
+            y += player.speed * state.delta;
         }
 
         if (downMap.a) {
-            x -= PLAYER_SPEED;
+            x -= player.speed * state.delta;
         }
 
         if (downMap.d) {
-            x += PLAYER_SPEED;
+            x += player.speed * state.delta;
         }
 
         if (Math.floor(x) !== Math.floor(px)) {
@@ -122,6 +124,8 @@ export default class Game {
     }
 
     draw() {
+        state.lastFrame = state.lastFrame + state.delta * 1000;
+        state.delta = (Date.now() - state.lastFrame) / 1000;
         this.processInput();
 
         const SCALE = 12;

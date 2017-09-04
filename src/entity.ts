@@ -10,6 +10,14 @@ export interface Entity {
     simulate(game: Game): boolean;
 }
 
+export class Bullet implements Entity {
+    constructor(public x: number, public y: number) {}
+    draw() { }
+    simulate() {
+        return true;
+    }
+}
+
 export class Enemy implements Entity {
     enemyScale: number = 1.5;
     constructor(public x: number, public y: number) {}

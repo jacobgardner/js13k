@@ -3,8 +3,9 @@ import { initGL } from './gl';
 import Renderer from './renderer';
 
 import Game from './game';
-import { Node } from './grid';
-import { SIZE_X, SIZE_Y, PLAYER_SPEED } from './config';
+import Node from './node';
+import { SIZE_X, SIZE_Y, INITIAL_PLAYER_SPEED } from './config';
+
 import { setMatrix } from './lib';
 
 // Intentionally mispelled for the extra byte!
