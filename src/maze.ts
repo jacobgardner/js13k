@@ -37,13 +37,11 @@ export default class Maze {
     end: Node;
     prog: Program;
 
-
     squareBuffer: WebGLBuffer;
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
         this.prog = new Program(renderer, vertex, frag);
-
 
         const gl = renderer.gl;
 
@@ -62,11 +60,6 @@ export default class Maze {
         );
     }
 
-    setMatricies() {
-        // const gl = this.renderer.gl;
-        // gl.uniform4fv();
-    }
-
     draw() {
         this.prog.use();
         const gl = this.renderer.gl;
@@ -82,7 +75,12 @@ export default class Maze {
 
                 const node = this.grid.get(x, y) as Node;
                 const classified = classifyNode(node);
-                gl.uniform4iv(this.prog.squareType, [LEFT & classified, UP & classified, RIGHT & classified, DOWN & classified])
+                gl.uniform4iv(this.prog.squareType, [
+                    LEFT & classified,
+                    UP & classified,
+                    RIGHT & classified,
+                    DOWN & classified
+                ]);
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             }
         }
@@ -103,7 +101,9 @@ export default class Maze {
                         n =>
                             n === this.start
                                 ? '%cS%c'
-                                : n === this.end ? '%cE%c' : nodeToChar(n as Node)
+                                : n === this.end
+                                  ? '%cE%c'
+                                  : nodeToChar(n as Node)
                     )
                     .join('')
             );

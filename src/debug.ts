@@ -57,6 +57,5 @@ export function drawMatrix(array: Float32Array) {
     }
 
     console.log(lines.join('\n'));
-
 }
 // @endif

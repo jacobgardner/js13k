@@ -87,11 +87,7 @@ export default class Renderer {
         const nf = 1 / (-80 - 80);
 
         // TODO: We can probably (definitely) use 2/3d matrices for this
-        gl.uniformMatrix4fv(
-            this.currentProgram.viewMat,
-            false,
-            this.camera
-        );
+        gl.uniformMatrix4fv(this.currentProgram.viewMat, false, this.camera);
 
         gl.uniformMatrix4fv(this.currentProgram.modelMat, false, this.modelMat);
         gl.uniformMatrix4fv(
