@@ -37,7 +37,6 @@ export default class Maze {
     end: Node;
     program: Program;
 
-
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
         this.program = new Program(renderer, vertex, hallFrag);

@@ -17,7 +17,6 @@ export default class Player {
         ];
 
         this.program = new Program(renderer, vertex, playerFrag);
-
     }
 
     draw() {
@@ -27,9 +26,12 @@ export default class Player {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
         gl.vertexAttribPointer(this.program.vertPos, 2, gl.FLOAT, false, 0, 0);
 
-        this.renderer.modelMat = setMatrix(this.x - PLAYER_SCALE / 2, this.y - PLAYER_SCALE / 2, PLAYER_SCALE);
+        this.renderer.modelMat = setMatrix(
+            this.x - PLAYER_SCALE / 2,
+            this.y - PLAYER_SCALE / 2,
+            PLAYER_SCALE
+        );
         this.renderer.setMatrices();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
     }
 }

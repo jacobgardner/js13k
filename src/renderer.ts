@@ -51,8 +51,6 @@ export class Program {
             );
             gl.enableVertexAttribArray(this[key] as number);
         }
-
-
     }
 
     use() {

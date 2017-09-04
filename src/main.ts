@@ -3,7 +3,7 @@ import { initGL } from './gl';
 import Renderer from './renderer';
 
 import Maze from './maze';
-import {Node} from './grid';
+import { Node } from './grid';
 import { SIZE_X, SIZE_Y, PLAYER_SPEED } from './config';
 import Player from './player';
 
@@ -34,7 +34,7 @@ interface Map<T> {
     [key: string]: T;
 }
 
-const downMap: Map<number> =  {}
+const downMap: Map<number> = {};
 
 function processInput() {
     let [x, y] = [player.x, player.y];
@@ -63,11 +63,11 @@ function processInput() {
         if (current.children.indexOf(node) !== -1) {
             player.x = x;
         }
-    // } else if (Math.floor(x + buffer) > Math.floor(px)) {
-    //     const node = maze.grid.get(Math.floor(x + buffer), Math.floor(py)) as Node;
-    //     if (current.children.indexOf(node) !== -1) {
-    //         player.x = x;
-    //     }
+        // } else if (Math.floor(x + buffer) > Math.floor(px)) {
+        //     const node = maze.grid.get(Math.floor(x + buffer), Math.floor(py)) as Node;
+        //     if (current.children.indexOf(node) !== -1) {
+        //         player.x = x;
+        //     }
     } else {
         player.x = x;
     }
@@ -82,13 +82,13 @@ function processInput() {
     }
 }
 
-onkeydown = (evt) => {
+onkeydown = evt => {
     downMap[evt.key.toLowerCase()] = 1;
-}
+};
 
-onkeyup = (evt) => {
+onkeyup = evt => {
     downMap[evt.key.toLowerCase()] = 0;
-}
+};
 
 function render() {
     const gl = renderer.gl;
