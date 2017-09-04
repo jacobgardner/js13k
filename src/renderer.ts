@@ -1,6 +1,6 @@
 import { initGL } from './gl';
 import { buildShader } from './shader';
-import { range, setMatrix } from './lib';
+import { setMatrix } from './lib';
 
 import { UniformRenaming, AttributeRenaming } from './shaders/shaders';
 

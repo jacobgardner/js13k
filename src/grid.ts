@@ -1,8 +1,6 @@
-import { random, shuffle, randomPop } from './random';
-import { SIZE_X, SIZE_Y, TRANSITION } from './config';
-import { Entity } from './entity';
+import { random, randomPop } from './random';
+import { SIZE_X, SIZE_Y } from './config';
 import Game from './game';
-import { setMatrix } from './lib';
 import Node from './node';
 
 export class Grid {

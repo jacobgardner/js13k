@@ -5,5 +5,5 @@ export const floor = Math.floor;
 
 export const state = {
     lastFrame: Date.now(),
-    delta: 0,
-}
+    delta: 0
+};

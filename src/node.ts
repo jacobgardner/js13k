@@ -22,22 +22,22 @@ export default class Node {
     // We could save this value instead of computing every time....
     //  but the bytes!!!
     classify() {
-        let number = 0;
+        let directions = 0;
         for (const kid of this.children) {
             const x = this.position[0] - kid.position[0];
             const y = this.position[1] - kid.position[1];
             if (x === 1) {
-                number += LEFT;
+                directions += LEFT;
             } else if (x === -1) {
-                number += RIGHT;
+                directions += RIGHT;
             } else if (y === 1) {
-                number += UP;
+                directions += UP;
             } else {
-                number += DOWN;
+                directions += DOWN;
             }
         }
 
-        return number;
+        return directions;
     }
 
     draw(game: Game) {

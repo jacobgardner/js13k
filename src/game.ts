@@ -1,18 +1,16 @@
 import buildGrid, { Grid } from './grid';
 import Node from './node';
-import { SIZE_X, SIZE_Y, TRANSITION, RENDER_AOE } from './config';
+import { SIZE_X, SIZE_Y, RENDER_AOE } from './config';
 import Renderer, { Program } from './renderer';
 import { vertex, hallFrag, enemyFrag } from './shaders/shaders';
-import { setMatrix } from './lib';
-import { buildEntities, Entity, Enemy } from './entity';
+import { Entity, Enemy } from './entity';
 import { random } from './random';
 import Player from './player';
+import { state } from './globals';
 
 // @if DEBUG
-import { nodeToChar, drawMatrix } from './debug';
-import { state } from "./globals";
+import { nodeToChar } from './debug';
 // @endif
-
 
 interface Map<T> {
     [key: string]: T;
@@ -28,7 +26,6 @@ export default class Game {
 
     mazeShaders: Program;
     enemyShaders: Program;
-
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
@@ -70,7 +67,6 @@ export default class Game {
         const px = player.x;
         const py = player.y;
         const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
-        const buffer = 0.3;
 
         function update(x: number, y: number, dx: number, dy: number) {
             const node = grid.get(Math.floor(x), Math.floor(y)) as Node;
@@ -140,13 +136,23 @@ export default class Game {
 
         const gl = this.renderer.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
-        gl.vertexAttribPointer(this.mazeShaders.vertPos, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(
+            this.mazeShaders.vertPos,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        );
 
         this.grid.draw(this);
 
         const removedEntities: Entity[] = [];
         for (const entity of this.entities) {
-            if (Math.abs(player.x - entity.x) > RENDER_AOE || Math.abs(player.y - entity.y) > RENDER_AOE) {
+            if (
+                Math.abs(player.x - entity.x) > RENDER_AOE ||
+                Math.abs(player.y - entity.y) > RENDER_AOE
+            ) {
                 continue;
             }
 

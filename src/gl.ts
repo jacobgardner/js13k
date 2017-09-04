@@ -1,7 +1,4 @@
 import { win, doc } from './globals';
-import { buildShader } from './shader';
-
-import * as shaders from './shaders/shaders';
 
 interface ObjectShader {
     fragment?: string;

@@ -7,7 +7,7 @@ const UP = 4;
 const DOWN = 8;
 
 export function nodeToChar(node: Node): string {
-    let number = 0;
+    let directions = 0;
 
     const DIRECTIONS = {
         0: ' ',
@@ -37,17 +37,17 @@ export function nodeToChar(node: Node): string {
         const x = node.position[0] - kid.position[0];
         const y = node.position[1] - kid.position[1];
         if (x === 1) {
-            number += LEFT;
+            directions += LEFT;
         } else if (x === -1) {
-            number += RIGHT;
+            directions += RIGHT;
         } else if (y === 1) {
-            number += UP;
+            directions += UP;
         } else {
-            number += DOWN;
+            directions += DOWN;
         }
     }
 
-    return DIRECTIONS[number];
+    return DIRECTIONS[directions];
 }
 
 export function drawMatrix(array: Float32Array) {

@@ -1,12 +1,7 @@
 import { win, doc } from './globals';
-import { initGL } from './gl';
 import Renderer from './renderer';
 
 import Game from './game';
-import Node from './node';
-import { SIZE_X, SIZE_Y, INITIAL_PLAYER_SPEED } from './config';
-
-import { setMatrix } from './lib';
 
 // Intentionally mispelled for the extra byte!
 doc.title = 'Lst';
