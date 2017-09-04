@@ -17,6 +17,10 @@ export interface Uniforms {
      * The location of uniform ivec4 squareType.
      */
     squareType: WebGLUniformLocation;
+    /**
+     * The location of uniform int squareState.
+     */
+    squareState: WebGLUniformLocation;
 }
 
 export interface Attributes {
@@ -30,8 +34,8 @@ export interface Attributes {
 
 export type Variables = Uniforms|Attributes;
 
-export let vertex = "precision mediump float;attribute vec2 e;uniform mat4 j,f,g;varying vec2 b;void main(){gl_Position=g*f*j*vec4(e,0,1),b=e;}";
+export let vertex = "precision mediump float;attribute vec2 g;uniform mat4 j,k,h;varying vec2 b;void main(){gl_Position=h*k*j*vec4(g,0,1),b=g;}";
 export let playerFrag = "precision mediump float;varying vec2 b;float i(float a){return 1.-a*a*a;}void main(){vec2 a=b-.5;float c=i(distance(vec2(0,0),a/.4));gl_FragColor=vec4(1,0,0,c);}";
-export let hallFrag = "precision mediump float;uniform ivec4 d;varying vec2 b;void main(){vec4 c=vec4(0,0,0,1),h=vec4(1,1,1,1),a=h;a=d.x==0&&b.x<.1?c:a,a=d.z==0&&b.x>.9?c:a,a=d.y==0&&b.y<.1?c:a,a=d.w==0&&b.y>.9?c:a,gl_FragColor=a;}";
-export let UniformRenaming = {"modelMat":"j","viewMat":"f","projMat":"g","squareType":"d"};
-export let AttributeRenaming = {"vertPos":"e"};
+export let hallFrag = "precision mediump float;uniform ivec4 d;uniform int e;varying vec2 b;void main(){vec4 c=vec4(0,0,0,1),f=vec4(1,1,1,1);f=e==0?vec4(0,.5,0,1):e==1?vec4(.5,0,0,1):e==2?vec4(.5,.5,.5,1):f;vec4 a=f;a=d.x==0&&b.x<.1?c:a,a=d.z==0&&b.x>.9?c:a,a=d.y==0&&b.y<.1?c:a,a=d.w==0&&b.y>.9?c:a,gl_FragColor=a;}";
+export let UniformRenaming = {"modelMat":"j","viewMat":"k","projMat":"h","squareType":"d","squareState":"e"};
+export let AttributeRenaming = {"vertPos":"g"};

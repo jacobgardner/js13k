@@ -59,6 +59,10 @@ export default class Maze {
 
                 const node = this.grid.get(x, y) as Node;
                 const classified = classifyNode(node);
+                gl.uniform1i(
+                    this.program.squareState,
+                    node === this.start ? 0 : node === this.end ? 1 : node.touched ? 2 : 3
+                );
                 gl.uniform4iv(this.program.squareType, [
                     LEFT & classified,
                     UP & classified,

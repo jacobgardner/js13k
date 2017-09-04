@@ -80,6 +80,8 @@ function processInput() {
     } else {
         player.y = y;
     }
+
+   current.touched = false;
 }
 
 onkeydown = evt => {

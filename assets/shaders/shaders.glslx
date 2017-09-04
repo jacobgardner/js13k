@@ -6,6 +6,7 @@ uniform ivec4 squareType;
 uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
+uniform int squareState;
 
 varying vec2 squarePos;
 
@@ -35,6 +36,14 @@ export void playerFrag() {
 export void hallFrag() {
     vec4 wall = vec4(0, 0, 0, 1);
     vec4 hall = vec4(1, 1, 1, 1);
+
+    if (squareState == 0) {
+        hall = vec4(0, 0.5, 0, 1);
+    } else if (squareState == 1) {
+        hall = vec4(0.5, 0, 0, 1);
+    } else if (squareState == 2) {
+        hall = vec4(0.5, 0.5, 0.5, 1);
+    }
 
     vec4 color = hall;
     if (squareType[0] == 0 && squarePos.x < 0.1) {
