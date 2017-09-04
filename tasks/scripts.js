@@ -8,8 +8,11 @@ const rollup = require('gulp-rollup');
 const preprocess = require('gulp-preprocess');
 const zip = require('gulp-zip');
 const sourcemaps = require('gulp-sourcemaps');
+const fs = require('fs');
 
 const generateHTML = require('./html').generateHTML;
+
+const MAX_SIZE = 13312;
 
 const tsProject = typescript.createProject('./tsconfig.json');
 
@@ -61,12 +64,23 @@ gulp.task('build-scripts', () => {
             .pipe(generateHTML())
             .pipe(rename('index.html'))
 
+        console.log(isDeploy());
+
         if (!isDeploy()) {
-            stream.pipe(zip('i.zip'));
+            stream = stream.pipe(zip('i.zip'));
         }
     } else {
         stream = stream.pipe(rename('bundle.js')).pipe(sourcemaps.write());
     }
 
-    return stream.pipe(gulp.dest('dist'));
+    stream = stream.pipe(gulp.dest('dist'));
+
+    if (!isDeploy() && isProduction()) {
+        stream.on('end', () => {
+            const stats = fs.statSync('./dist/i.zip');
+            console.log(`Size: ${stats.size} B/${MAX_SIZE} B = ${Math.floor(stats.size/MAX_SIZE * 100)}%`);
+        });
+    }
+
+    return stream;
 });

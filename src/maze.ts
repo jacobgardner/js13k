@@ -5,6 +5,9 @@ import { vertex, hallFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 // @if DEBUG
 import { nodeToChar, drawMatrix } from './debug';
+import { buildEntities, Entity, Enemy } from './entity';
+import { random } from "./random";
+import Player from "./player";
 // @endif
 
 const LEFT = 1;
@@ -31,17 +34,31 @@ function classifyNode(node: Node): number {
     return number;
 }
 
-export default class Maze {
+export default class Game {
     grid: Grid;
     start: Node;
     end: Node;
     program: Program;
+    entities: Entity[] = [];
+    player: Player;
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
         this.program = new Program(renderer, vertex, hallFrag);
 
-        // const gl = renderer.gl;
+        for (const key in this.grid) {
+            const node = this.grid[key] as Node;
+            if (node !== this.start && node !== this.end) {
+                // we can pass in difficulty or whatever here
+                const entityCount = random(0, node.distance);
+                for (let i = 0; i < entityCount; i += 1) {
+                    const enemy = new Enemy(node.position[0] + Math.random(), node.position[0] + Math.random());
+                    this.entities.push(enemy);
+                }
+            }
+        }
+
+        this.player = new Player(renderer, this);
     }
 
     draw() {
@@ -80,6 +97,10 @@ export default class Maze {
                 ]);
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
             }
+        }
+
+        for (const entity of this.entities) {
+            entity.draw();
         }
     }
 

@@ -1,12 +1,13 @@
 import { random, shuffle, randomPop } from './random';
 import { SIZE_X, SIZE_Y } from './config';
+import { Entity } from './entity';
 
 export class Node {
     untouched: Node[] = [];
     children: Node[] = [];
     touched: boolean = false;
     position: number[];
-    length: number = 0;
+    distance: number = 0;
     time?: number = 0;
 
     constructor(x: number, y: number) {
@@ -32,9 +33,6 @@ export class Grid {
 
     [key: string]: Node | Function;
 }
-// export interface Grid {
-//    [key: string]: Node;
-// }
 
 export default function(): [Grid, Node, Node] {
     const grid: Grid = new Grid();
@@ -73,8 +71,8 @@ export default function(): [Grid, Node, Node] {
         }
         sibling.untouched.splice(sibling.untouched.indexOf(node), 1);
         sibling.children.push(node);
-        sibling.length = node.length + 1;
-        if (sibling.length > end.length) {
+        sibling.distance = node.distance + 1;
+        if (sibling.distance > end.distance) {
             end = sibling;
         }
         node.children.push(sibling);

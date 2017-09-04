@@ -1,5 +1,5 @@
 import Renderer, { Program } from './renderer';
-import Maze from './maze';
+import Game from './maze';
 import { vertex, playerFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 
@@ -10,7 +10,7 @@ export default class Player {
     y: number;
     program: Program;
 
-    constructor(public renderer: Renderer, public maze: Maze) {
+    constructor(public renderer: Renderer, public maze: Game) {
         [this.x, this.y] = [
             maze.start.position[0] + 0.5,
             maze.start.position[1] + 0.5

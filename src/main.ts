@@ -2,7 +2,7 @@ import { win, doc } from './globals';
 import { initGL } from './gl';
 import Renderer from './renderer';
 
-import Maze from './maze';
+import Game from './maze';
 import { Node } from './grid';
 import { SIZE_X, SIZE_Y, PLAYER_SPEED } from './config';
 import Player from './player';
@@ -13,12 +13,12 @@ doc.title = 'Lst';
 const renderer = new Renderer();
 // const gl = initGL();
 
-const maze = new Maze(renderer);
-const player = new Player(renderer, maze);
+const game = new Game(renderer);
+const player = new Player(renderer, game);
 
 // @if DEBUG
 console.log(
-    '%c' + maze.toString(),
+    '%c' + game.toString(),
     'font-size: 14px;',
     'font-size: 14px;color: #009900; font-weight: bolder;',
     'font-size: 14px;color: #000000; font-weight: normal;',
@@ -42,11 +42,11 @@ function processInput() {
 
     const px = player.x;
     const py = player.y;
-    const current = maze.grid.get(Math.floor(px), Math.floor(py)) as Node;
+    const current = game.grid.get(Math.floor(px), Math.floor(py)) as Node;
     const buffer = 0.3;
 
     function update(x: number, y: number, cx: number, cy: number) {
-        const node = maze.grid.get(Math.floor(cx), Math.floor(cy)) as Node;
+        const node = game.grid.get(Math.floor(cx), Math.floor(cy)) as Node;
         if (current.children.indexOf(node) !== -1) {
             player.x = x;
             player.y = y;
@@ -100,7 +100,7 @@ function processInput() {
     // }
 
     if (Math.floor(x) !== Math.floor(px)) {
-        const node = maze.grid.get(Math.floor(x), Math.floor(py)) as Node;
+        const node = game.grid.get(Math.floor(x), Math.floor(py)) as Node;
         if (current.children.indexOf(node) !== -1) {
             player.x = x;
         }
@@ -117,7 +117,7 @@ function processInput() {
     // }
 
     if (Math.floor(y) !== Math.floor(py)) {
-        const node = maze.grid.get(Math.floor(px), Math.floor(y)) as Node;
+        const node = game.grid.get(Math.floor(px), Math.floor(y)) as Node;
         if (current.children.indexOf(node) !== -1) {
             player.y = y;
         }
@@ -166,7 +166,7 @@ function render() {
         1
     ]);
 
-    maze.draw();
+    game.draw();
     player.draw();
 
     win.requestAnimationFrame(render);
