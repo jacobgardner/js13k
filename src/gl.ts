@@ -34,6 +34,8 @@ export function initGL() {
 
     // Setup Buffers etc.
     gl.clearColor(0, 0, 0, 1);
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.enable(gl.BLEND);
 
     // for (const shader of [shaders] as ObjectShader[]) {
     //     if (shader.vertex) {

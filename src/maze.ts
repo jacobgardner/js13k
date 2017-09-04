@@ -1,7 +1,7 @@
 import buildGrid, { Grid, Node } from './grid';
 import { SIZE_X, SIZE_Y } from './config';
 import Renderer, { Program } from './renderer';
-import { vertex, frag } from './shaders/shaders';
+import { vertex, hallFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 // @if DEBUG
 import { nodeToChar, drawMatrix } from './debug';
@@ -35,36 +35,21 @@ export default class Maze {
     grid: Grid;
     start: Node;
     end: Node;
-    prog: Program;
+    program: Program;
 
-    squareBuffer: WebGLBuffer;
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
-        this.prog = new Program(renderer, vertex, frag);
+        this.program = new Program(renderer, vertex, hallFrag);
 
-        const gl = renderer.gl;
-
-        this.squareBuffer = gl.createBuffer() as WebGLBuffer;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.squareBuffer);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            // prettier-ignore
-            new Float32Array([
-                0, 0,
-                0, 1,
-                1, 0,
-                1, 1
-            ]),
-            gl.STATIC_DRAW
-        );
+        // const gl = renderer.gl;
     }
 
     draw() {
-        this.prog.use();
+        this.program.use();
         const gl = this.renderer.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.squareBuffer);
-        gl.vertexAttribPointer(this.prog.vertPos, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
+        gl.vertexAttribPointer(this.program.vertPos, 2, gl.FLOAT, false, 0, 0);
 
         for (let x = 0; x < SIZE_X; x += 1) {
             for (let y = 0; y < SIZE_Y; y += 1) {
@@ -75,7 +60,7 @@ export default class Maze {
 
                 const node = this.grid.get(x, y) as Node;
                 const classified = classifyNode(node);
-                gl.uniform4iv(this.prog.squareType, [
+                gl.uniform4iv(this.program.squareType, [
                     LEFT & classified,
                     UP & classified,
                     RIGHT & classified,

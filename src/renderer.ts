@@ -3,7 +3,6 @@ import { buildShader } from './shader';
 import { range, setMatrix } from './lib';
 
 import { UniformRenaming, AttributeRenaming } from './shaders/shaders';
-import { vertex, frag } from './shaders/shaders';
 
 interface Map<T> {
     [key: string]: T;
@@ -52,6 +51,8 @@ export class Program {
             );
             gl.enableVertexAttribArray(this[key] as number);
         }
+
+
     }
 
     use() {
@@ -66,9 +67,24 @@ export default class Renderer {
     gl: WebGLRenderingContext;
     modelMat: Float32Array;
     camera: Float32Array = setMatrix(-8, -8, 0.85, 0);
+    squareBuffer: WebGLBuffer;
 
     constructor() {
         this.gl = gl = initGL();
+
+        this.squareBuffer = gl.createBuffer() as WebGLBuffer;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.squareBuffer);
+        gl.bufferData(
+            gl.ARRAY_BUFFER,
+            // prettier-ignore
+            new Float32Array([
+                0, 0,
+                0, 1,
+                1, 0,
+                1, 1
+            ]),
+            gl.STATIC_DRAW
+        );
     }
 
     use(program: Program) {
