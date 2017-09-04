@@ -11,12 +11,12 @@ doc.title = 'Lst';
 const renderer = new Renderer();
 // const gl = initGL();
 
-const m = new Maze(renderer);
-// const p = new Player(renderer, m);
+const maze = new Maze(renderer);
+const player = new Player(renderer, maze);
 
 // @if DEBUG
 console.log(
-    '%c' + m.toString(),
+    '%c' + maze.toString(),
     'font-size: 14px;',
     'font-size: 14px;color: #009900; font-weight: bolder;',
     'font-size: 14px;color: #000000; font-weight: normal;',
@@ -33,7 +33,9 @@ function render() {
     const gl = renderer.gl;
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    m.draw();
+    maze.draw();
+
+    player.draw();
 
     win.requestAnimationFrame(render);
 }
