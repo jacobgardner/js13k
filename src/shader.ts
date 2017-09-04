@@ -13,5 +13,5 @@ export function buildShader(isFragShader: number, shaderContents: string) {
     }
     // @endif
 
-    return shader;
+    return shader as WebGLShader;
 }

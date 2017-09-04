@@ -1,7 +1,7 @@
 import { win, doc } from './globals';
 import { buildShader } from './shader';
 
-import * as characterShader from './shaders/character';
+import * as shaders from './shaders/shaders';
 
 interface ObjectShader {
     fragment?: string;
@@ -35,16 +35,16 @@ export function initGL() {
     // Setup Buffers etc.
     gl.clearColor(0, 0, 0, 1);
 
-    for (const shader of [characterShader] as ObjectShader[]) {
-        if (shader.vertex) {
-            shader.vertex = buildShader(0, shader.vertex) as any;
-        }
+    // for (const shader of [shaders] as ObjectShader[]) {
+    //     if (shader.vertex) {
+    //         shader.vertex = buildShader(0, shader.vertex) as any;
+    //     }
 
-        if (shader.fragment) {
-            shader.fragment = buildShader(0, shader.fragment) as any;
-        }
-    }
-    characterShader.vertex;
+    //     if (shader.fragment) {
+    //         shader.fragment = buildShader(0, shader.fragment) as any;
+    //     }
+    // }
+    // shaders.vertex;
 
     return gl;
 }

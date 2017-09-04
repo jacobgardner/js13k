@@ -13,36 +13,39 @@ export class Node {
     }
 }
 
-export interface Grid {
-    [key: string]: Node;
-}
-
-export default function(): [Grid, Node, Node] {
-    const grid: Grid = {};
-
-    function get(x: number, y: number): Node | null {
+export class Grid {
+    get(x: number, y: number): Node | null {
         const coord = [x, y].toString();
 
         if (x >= SIZE_X || y >= SIZE_Y || x < 0 || y < 0) {
             return null;
         }
 
-        let node: Node = grid[coord];
+        let node: Node = this[coord] as Node;
         if (!node) {
-            node = grid[coord] = new Node(x, y);
+            node = this[coord] = new Node(x, y);
         }
 
         return node;
     }
 
+    [key: string]: Node | Function;
+}
+// export interface Grid {
+//    [key: string]: Node;
+// }
+
+export default function(): [Grid, Node, Node] {
+    const grid: Grid = new Grid();
+
     const adjacent = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
     for (let x = 0; x < SIZE_X; x++) {
         for (let y = 0; y < SIZE_Y; y++) {
-            const node = get(x, y) as Node;
+            const node = grid.get(x, y) as Node;
 
             for (const offset of adjacent) {
-                const sibling = get(x + offset[0], y + offset[1]);
+                const sibling = grid.get(x + offset[0], y + offset[1]);
                 if (sibling) {
                     node.untouched.push(sibling);
                 }
@@ -50,7 +53,7 @@ export default function(): [Grid, Node, Node] {
         }
     }
 
-    const start = get(random(0, SIZE_X), random(0, SIZE_Y)) as Node;
+    const start = grid.get(random(0, SIZE_X), random(0, SIZE_Y)) as Node;
     const open: Node[] = [start];
 
     let end = start;

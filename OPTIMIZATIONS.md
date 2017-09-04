@@ -1,4 +1,5 @@
  * All global variables that are used more than once can be renamed so they get name mangled in minified version.
+ * Build `range` function for `for (let i = 0; i < n; i += 1)` loops
  * ^^^ Minifier appears to do this.  We might be wasting time.
  * Use `with` when bytes can be saved. Note: With could potentially break code due to name mangling.  Use with care.  It may not be worth the bugs and confusion.
  * Inline any functions that are only called once.

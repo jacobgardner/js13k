@@ -49,4 +49,14 @@ export function nodeToChar(node: Node): string {
 
     return DIRECTIONS[number];
 }
+
+export function drawMatrix(array: Float32Array) {
+    const lines = [];
+    for (let y = 0; y < 4; y += 1) {
+        lines.push(array.slice(y * 4, (y + 1) * 4).join(' '));
+    }
+
+    console.log(lines.join('\n'));
+
+}
 // @endif

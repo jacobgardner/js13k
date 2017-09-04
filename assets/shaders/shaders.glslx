@@ -1,0 +1,36 @@
+precision mediump float;
+
+attribute vec2 vertPos;
+
+uniform ivec4 squareType;
+uniform mat4 modelMat;
+uniform mat4 viewMat;
+uniform mat4 projMat;
+
+varying vec2 squarePos;
+
+export void vertex() {
+    gl_Position = projMat * viewMat * modelMat * vec4(vertPos, 0, 1);
+    squarePos = vertPos;
+}
+
+export void frag() {
+    vec4 wall = vec4(0, 0, 0, 1);
+    vec4 hall = vec4(1, 1, 1, 1);
+
+    vec4 color = hall;
+    if (squareType[0] == 0 && squarePos.x < 0.1) {
+        color = wall;
+    }
+    if (squareType[2] == 0 && squarePos.x > 0.9) {
+        color = wall;
+    }
+    if (squareType[1] == 0 && squarePos.y < 0.1) {
+        color = wall;
+    }
+    if (squareType[3] == 0 && squarePos.y > 0.9) {
+        color = wall;
+    }
+
+    gl_FragColor = color;
+}

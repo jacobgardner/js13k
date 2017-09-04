@@ -4,6 +4,7 @@ import Renderer from './renderer';
 
 import Maze from './maze';
 import { SIZE_X, SIZE_Y } from './config';
+import Player from './player';
 
 // Intentionally mispelled for the extra byte!
 doc.title = 'Lst';
@@ -11,6 +12,7 @@ const renderer = new Renderer();
 // const gl = initGL();
 
 const m = new Maze(renderer);
+// const p = new Player(renderer, m);
 
 // @if DEBUG
 console.log(
@@ -36,4 +38,5 @@ function render() {
     win.requestAnimationFrame(render);
 }
 
-win.requestAnimationFrame(render);
+render();
+// win.requestAnimationFrame(render);

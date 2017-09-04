@@ -1,2 +1,2 @@
-export const SIZE_X = 40;
-export const SIZE_Y = 10;
+export const SIZE_X = 20;
+export const SIZE_Y = 20;
