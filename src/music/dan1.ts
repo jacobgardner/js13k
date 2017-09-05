@@ -1,9 +1,10 @@
+import IChannel from '../audio/channel';
 import * as waves from '../audio/waves';
 import * as envelopes from '../audio/envelopes';
 import * as filters from '../audio/filters';
 
 export const speed = 3296;
-export const channels = [
+export const channels: IChannel[] = [
     [
         {
             wave: waves.SQUARE,

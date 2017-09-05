@@ -3,6 +3,9 @@ import Renderer from './renderer';
 
 import Game from './game';
 
+import { channels } from './music/dan1';
+console.log(channels);
+
 // Intentionally mispelled for the extra byte!
 doc.title = 'Lst';
 const renderer = new Renderer();
