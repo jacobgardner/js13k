@@ -81,6 +81,24 @@ export default class Game {
             return false;
         }
 
+        // @if DEPLOY || DEBUG
+        if (downMap.arrowup) {
+            y -= player.speed * state.delta;
+        }
+
+        if (downMap.arrowdown) {
+            y += player.speed * state.delta;
+        }
+
+        if (downMap.arrowleft) {
+            x -= player.speed * state.delta;
+        }
+
+        if (downMap.arrowright) {
+            x += player.speed * state.delta;
+        }
+        // @endif
+
         if (downMap.w) {
             y -= player.speed * state.delta;
         }

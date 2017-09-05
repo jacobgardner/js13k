@@ -27,7 +27,7 @@ function isDeploy() {
 }
 
 gulp.task('build-scripts', () => {
-    const context = { DEBUG: isProduction() === false };
+    const context = { DEBUG: isProduction() === false, DEPLOY: isDeploy() };
 
     let stream = gulp
         .src('./src/**/*')
