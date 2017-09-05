@@ -300,12 +300,18 @@ export default class Game {
             gl.drawArrays(gl.TRIANGLES, 0, this.shadowCount);
         }
 
-        if ((player.hp < 0.01 && player.actualHP < 1) || (player.hp >= 1.5 && player.actualHP > 1.5))  {
+        if (
+            (player.hp < 0.01 && player.actualHP < 1) ||
+            (player.hp >= 1.5 && player.actualHP > 1.5)
+        ) {
             player.actualHP = 1;
             this.buildWorld();
         }
 
-        const playerNode = this.grid.get(Math.floor(player.x), Math.floor(player.y));
+        const playerNode = this.grid.get(
+            Math.floor(player.x),
+            Math.floor(player.y)
+        );
         if (playerNode === this.end) {
             player.actualHP = 1.8;
             this.entities = [];
