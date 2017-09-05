@@ -13,10 +13,10 @@ import { Entity, Enemy } from './entity';
 import { random } from './random';
 import Player from './player';
 import { state } from './globals';
+import { normalize, setMatrix } from './lib';
 
 // @if DEBUG
 import { nodeToChar } from './debug';
-import { normalize, setMatrix } from './lib';
 // @endif
 
 interface Map<T> {
