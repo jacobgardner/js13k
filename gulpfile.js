@@ -5,7 +5,7 @@ const sequence = require("gulp-sequence");
 require('./tasks');
 
 gulp.task("build", (cb) => {
-    sequence("build-shaders", "build-scripts", "reload")(cb);
+    sequence(["build-shaders", "build-audio"], "build-scripts", "reload")(cb);
 });
 
 gulp.task("reload", () => {

@@ -3,3 +3,4 @@ require("./shaders");
 require("./deploy");
 require("./makePretty");
 require('./gitHooks');
+require('./audio');

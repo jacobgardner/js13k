@@ -11,7 +11,6 @@ gulp.task('build-shaders', () => {
             console.error(err.message);
             this.emit('end');
         })
-        .pipe(replace(/\bconst\b/g, 'let'))
         .pipe(rename({extname: '.ts'}))  .pipe(rename({extname: '.ts'}))
         .pipe(gulp.dest('./src/shaders'));
 });

@@ -2,6 +2,7 @@ Tasks
 =====
 
  * Have indicator showing where exit is.
+ * Draw muted exit on top of shadows?
  * Implement progression system:
     * Start level at 2x2, then increase in size logarithmically?
     * Have a low probability of a node having 1 enemy, scale up
