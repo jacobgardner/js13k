@@ -19,27 +19,6 @@ export default class Node {
         this.position = [x, y];
     }
 
-    // We could save this value instead of computing every time....
-    //  but the bytes!!!
-    classify() {
-        let directions = 0;
-        for (const kid of this.children) {
-            const x = this.position[0] - kid.position[0];
-            const y = this.position[1] - kid.position[1];
-            if (x === 1) {
-                directions += LEFT;
-            } else if (x === -1) {
-                directions += RIGHT;
-            } else if (y === 1) {
-                directions += UP;
-            } else {
-                directions += DOWN;
-            }
-        }
-
-        return directions;
-    }
-
     passable(x: number, y: number): boolean {
         x = Math.floor(x);
         y = Math.floor(y);
@@ -66,7 +45,6 @@ export default class Node {
         renderer.modelMat = setMatrix(x, y);
         renderer.setMatrices();
 
-        const classified = this.classify();
         gl.uniform1i(
             game.mazeShaders.squareState,
             this === game.start
@@ -80,12 +58,6 @@ export default class Node {
         }
 
         gl.uniform1f(game.mazeShaders.t, t);
-        gl.uniform4iv(game.mazeShaders.squareType, [
-            LEFT & classified,
-            UP & classified,
-            RIGHT & classified,
-            DOWN & classified
-        ]);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 }

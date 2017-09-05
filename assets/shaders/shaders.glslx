@@ -4,7 +4,6 @@ precision mediump float;
 
 attribute vec2 vertPos;
 
-uniform ivec4 squareType;
 uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
@@ -98,18 +97,5 @@ export void hallFrag() {
     }
 
     vec4 color = mix(vec4(0.5, 0.5, 0.5, 1), hall, 1.0 - circularIn(squareState < 2 ? 1.0 : t));
-    if (squareType[0] == 0 && squarePos.x < 0.01) {
-        color = wall;
-    }
-    if (squareType[2] == 0 && squarePos.x > 0.99) {
-        color = wall;
-    }
-    if (squareType[1] == 0 && squarePos.y < 0.01) {
-        color = wall;
-    }
-    if (squareType[3] == 0 && squarePos.y > 0.99) {
-        color = wall;
-    }
-
     gl_FragColor = color;
 }

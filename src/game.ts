@@ -131,7 +131,7 @@ export default class Game {
         x = Math.round(x * 100) / 100;
         y = Math.round(y * 100) / 100;
 
-        let xoffset = 0.02;
+        let xoffset = 0.01;
         let yoffset = xoffset;
         if (px % 1 < 0.5) {
             xoffset *= -1;
