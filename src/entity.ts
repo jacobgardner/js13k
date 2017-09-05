@@ -46,7 +46,7 @@ export class Bullet implements Entity {
 
             const a = dx - player.x;
             const b = dy - player.y;
-            if (a * a + b * b < 0.08 * 0.08) {
+            if (a * a + b * b < 0.04 * 0.04) {
                 player.hp -= 0.15;
                 return false;
             }
@@ -61,7 +61,7 @@ export class Bullet implements Entity {
 }
 
 export class Enemy implements Entity {
-    enemyScale: number = 1.5;
+    enemyScale: number = 0.8;
     prevShotTime: number = Date.now();
     constructor(public x: number, public y: number) {}
 

@@ -12,7 +12,16 @@ uniform float t;
 varying vec2 squarePos;
 
 float circularIn(float t) {
-  return 1.0 - t * t * t;
+    return 1.0 - t * t;
+}
+
+float softEdge(float t) {
+//   return 1.0 - t * t * t;
+
+    float r = t < 0.45 ? 1.0 : t > 0.55 ? 0.0 : 1.0 - (t - 0.45) / 0.1;
+    return r * r;
+
+    // return t > 0.5 ? 0.0 : 1.0;
 }
 
 export void vertex() {
@@ -23,7 +32,7 @@ export void vertex() {
 export void playerFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
 
     gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), t);
 }
@@ -31,7 +40,7 @@ export void playerFrag() {
 export void enemyFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
 
     gl_FragColor = vec4(1, 0, 0, alpha);
 }
@@ -39,7 +48,7 @@ export void enemyFrag() {
 export void bulletFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = circularIn(distance(vec2(0, 0), offset / 0.1));
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
 
     gl_FragColor = vec4(0, 0, 0, alpha);
 }
@@ -51,8 +60,14 @@ export void hallFrag() {
 
     if (squareState == 0) {
         hall = vec4(0, 0.5, 0, 1);
-    } else if (squareState == 1) {
-        hall = vec4(0.5, 0, 0, 1);
+   } else if (squareState == 1) {
+        if ((mod(squarePos.x * 10.0, 2.0) > 1.0 && mod(squarePos.y * 10.0, 2.0) > 1.0) || (mod(squarePos.x * 10.0, 2.0) < 1.0 && mod(squarePos.y * 10.0, 2.0) < 1.0)) {
+            hall = vec4(1, 1, 1, 1);
+        } else {
+            hall = vec4(0, 0, 0, 1);
+        }
+
+        // hall = vec4(0.5, 0, 0, 1);
     } else if (squareState == 2) {
         hall = vec4(0.5, 0.5, 0.5, 1);
     }
