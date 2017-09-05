@@ -32,6 +32,7 @@ export default class Game {
     pendingEntities: Entity[];
     player: Player;
     downMap: Map<number> = {};
+    startTime: number = Date.now();
 
     shadowBuffer: WebGLBuffer;
     shadowCount: number = 0;
@@ -253,7 +254,8 @@ export default class Game {
         this.flashlightShaders.use();
         this.renderer.modelMat = setMatrix(this.player.x - 1, this.player.y - 1, 2);
         this.renderer.setMatrices();
-        gl.uniform1f(this.flashlightShaders.t, this.player.hp);
+        gl.uniform1f(this.flashlightShaders.hp, this.player.hp);
+        gl.uniform1f(this.flashlightShaders.t, (Date.now() - this.startTime) / 100);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 

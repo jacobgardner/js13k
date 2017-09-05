@@ -8,6 +8,7 @@ uniform mat4 viewMat;
 uniform mat4 projMat;
 uniform int squareState;
 uniform float t;
+uniform float hp;
 
 varying vec2 squarePos;
 
@@ -34,7 +35,7 @@ export void playerFrag() {
 
     float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
 
-    gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), t);
+    gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), hp);
 }
 
 export void enemyFrag() {
@@ -57,10 +58,15 @@ export void bulletFrag() {
     gl_FragColor = vec4(0, 0, 0, alpha);
 }
 
+float waver(float t) {
+    return (1.0+0.2*sin(0.005*t) + 0.05*sin(0.8*t) + 0.1 * sin(0.025*t) + 0.1 * sin(0.1*t)) / 10.0;
+}
+
 export void flashlightFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = 1.0 - circularIn(distance(vec2(0, 0), offset / (0.55 * t)));
+    float alpha = 1.0 - circularIn(distance(vec2(0, 0), offset / (0.55 * hp)));
+    alpha += waver(t);
 
     gl_FragColor = vec4(0, 0, 0, alpha);
 }

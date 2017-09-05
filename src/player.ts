@@ -56,7 +56,7 @@ export default class Player {
             PLAYER_SCALE
         );
         this.renderer.setMatrices();
-        gl.uniform1f(this.program.t, this.hp);
+        gl.uniform1f(this.program.hp, this.hp);
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     }
 }
