@@ -21,6 +21,9 @@ Tasks
     * Shield for N seconds.
     * Drops bombs every N seconds for T seconds, damages enemies.
     * Speed Boost?
+ * Possible Nodes: 
+    * Protection Node: No enemies may spawn here.  Bullets cannot penetrate.
+ * Use Object pools to prevent garbage collection
  * Make the player HP more apparent.
  * Show current/max score in title bar
  * Mobile Support 
