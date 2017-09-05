@@ -84,8 +84,10 @@ export class Enemy implements Entity {
     simulate(game: Game) {
         if (Date.now() - this.prevShotTime > 1000) {
             this.prevShotTime = Date.now();
-            let vector = normalize([game.player.x - this.x, game.player.y - this.y]);
-
+            let vector = normalize([
+                game.player.x - this.x,
+                game.player.y - this.y
+            ]);
 
             const bullet = new Bullet(this.x, this.y);
             bullet.vector = vector;

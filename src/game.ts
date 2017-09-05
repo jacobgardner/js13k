@@ -61,7 +61,6 @@ export default class Game {
         onkeyup = evt => {
             this.downMap[evt.key.toLowerCase()] = 0;
         };
-
     }
 
     buildWorld() {
@@ -85,7 +84,6 @@ export default class Game {
         }
 
         this.player.start(this.start.position[0], this.start.position[1]);
-
     }
 
     processInput() {
@@ -172,8 +170,14 @@ export default class Game {
                 const ray1 = normalize([x - px, y - py]);
                 const ray2 = normalize([dx - px, dy - py]);
 
-                const p1 = [x + ray1[0] * shadowScale, y + ray1[1] * shadowScale];
-                const p2 = [dx + ray2[0] * shadowScale, dy + ray2[1] * shadowScale];
+                const p1 = [
+                    x + ray1[0] * shadowScale,
+                    y + ray1[1] * shadowScale
+                ];
+                const p2 = [
+                    dx + ray2[0] * shadowScale,
+                    dy + ray2[1] * shadowScale
+                ];
 
                 points = points.concat([x, y], p1, [dx, dy], p1, [dx, dy], p2);
             }
@@ -266,12 +270,18 @@ export default class Game {
         player.draw();
 
         this.flashlightShaders.use();
-        this.renderer.modelMat = setMatrix(this.player.x - 1, this.player.y - 1, 2);
+        this.renderer.modelMat = setMatrix(
+            this.player.x - 1,
+            this.player.y - 1,
+            2
+        );
         this.renderer.setMatrices();
         gl.uniform1f(this.flashlightShaders.hp, this.player.hp);
-        gl.uniform1f(this.flashlightShaders.t, (Date.now() - this.startTime) / 100);
+        gl.uniform1f(
+            this.flashlightShaders.t,
+            (Date.now() - this.startTime) / 100
+        );
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
 
         if (this.shadowCount) {
             this.shadowShaders.use();

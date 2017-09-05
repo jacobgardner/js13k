@@ -20,10 +20,7 @@ export default class Player {
     }
 
     start(x: number, y: number) {
-        [this.x, this.y] = [
-            x + 0.5,
-            y + 0.5
-        ];
+        [this.x, this.y] = [x + 0.5, y + 0.5];
     }
 
     attack(damage: number) {
