@@ -1,6 +1,7 @@
 Tasks
 =====
 
+ * Have indicator showing where exit is.
  * Implement progression system:
     * Start level at 2x2, then increase in size logarithmically?
     * Have a low probability of a node having 1 enemy, scale up
@@ -21,7 +22,6 @@ Tasks
     * Speed Boost?
  * Make the player HP more apparent.
  * Show current/max score in title bar
- * Have indicator showing where exit is.
  * Mobile Support 
     * Press and drag in a direction for movement.
  * Soft Shadows
@@ -31,3 +31,4 @@ Tasks
     * Make it pan left/right based on the exit being left/right of you.
     * Make it increase/decrease in volume based on distance and/or health.
  * Radiosity
+ * Pick a title, I guess
