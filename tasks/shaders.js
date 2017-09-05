@@ -7,6 +7,10 @@ gulp.task('build-shaders', () => {
     // TODO: Clear shaders directory before populating it.
     return gulp.src('./assets/shaders/**/*.glslx')
         .pipe(shadify())
+        .on('error', function (err) {
+            console.error(err.message);
+            this.emit('end');
+        })
         .pipe(replace(/\bconst\b/g, 'let'))
         .pipe(rename({extname: '.ts'}))  .pipe(rename({extname: '.ts'}))
         .pipe(gulp.dest('./src/shaders'));

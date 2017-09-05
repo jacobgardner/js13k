@@ -1,5 +1,4 @@
 import Renderer, { Program } from './renderer';
-import Game from './game';
 import { vertex, playerFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 import { INITIAL_PLAYER_SPEED } from './config';

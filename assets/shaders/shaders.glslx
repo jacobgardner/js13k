@@ -1,3 +1,5 @@
+const float PI = 3.1415926;
+
 precision mediump float;
 
 attribute vec2 vertPos;
@@ -17,12 +19,8 @@ float circularIn(float t) {
 }
 
 float softEdge(float t) {
-//   return 1.0 - t * t * t;
-
     float r = t < 0.45 ? 1.0 : t > 0.55 ? 0.0 : 1.0 - (t - 0.45) / 0.1;
     return r * r;
-
-    // return t > 0.5 ? 0.0 : 1.0;
 }
 
 export void vertex() {
@@ -47,28 +45,34 @@ export void enemyFrag() {
 }
 
 export void shadowFrag() {
-    gl_FragColor = vec4(0, 0, 0, 1);
+    gl_FragColor = mix(vec4(0, 0, 0, 1), vec4(1, 1, 1, 1), hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0);
 }
 
 export void bulletFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
+    float dist = distance(vec2(0, 0), offset / 0.1);
 
-    gl_FragColor = vec4(0, 0, 0, alpha);
+    float alpha = softEdge(dist);
+
+    float blue = (atan(offset.y / offset.x) + 1.0) / (2.0);
+
+    gl_FragColor = mix(vec4(0.1, 0.1, 0.1, alpha), vec4(0.2, 0.3, 0.8, alpha), blue);
 }
 
 float waver(float t) {
-    return (1.0+0.2*sin(0.005*t) + 0.05*sin(0.8*t) + 0.1 * sin(0.025*t) + 0.1 * sin(0.1*t)) / 10.0;
+    return (1.0+0.2*sin(0.005*t) + 0.05*sin(0.8*t) + 0.4 * sin(0.024*t) + 0.2 * sin(0.1*t)) / 10.0;
 }
 
 export void flashlightFrag() {
     vec2 offset = squarePos - 0.5;
 
+    float mod = hp > 1.0 ? hp - 1.0 : hp;
     float alpha = 1.0 - circularIn(distance(vec2(0, 0), offset / (0.55 * hp)));
+
     alpha += waver(t);
 
-    gl_FragColor = vec4(0, 0, 0, alpha);
+    gl_FragColor = mix(vec4(0, 0, 0, alpha), vec4(1, 1, 1, 1), hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0);
 }
 
 export void hallFrag() {
@@ -77,15 +81,18 @@ export void hallFrag() {
 
 
     if (squareState == 0) {
-        hall = vec4(0, 0.5, 0, 1);
-   } else if (squareState == 1) {
+
+        if (mod((squarePos.x - squarePos.y) * 10.0, 2.0) > 1.0) {
+            hall = vec4(1, 1, 0, 1);
+        } else {
+            hall = vec4(0.2, 0.2, 0.2, 1);
+        }
+    } else if (squareState == 1) {
         if ((mod(squarePos.x * 10.0, 2.0) > 1.0 && mod(squarePos.y * 10.0, 2.0) > 1.0) || (mod(squarePos.x * 10.0, 2.0) < 1.0 && mod(squarePos.y * 10.0, 2.0) < 1.0)) {
             hall = vec4(1, 1, 1, 1);
         } else {
             hall = vec4(0, 0, 0, 1);
         }
-
-        // hall = vec4(0.5, 0, 0, 1);
     } else if (squareState == 2) {
         hall = vec4(0.5, 0.5, 0.5, 1);
     }
