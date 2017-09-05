@@ -130,11 +130,24 @@ export default class Game {
             x += player.speed * state.delta;
         }
 
-        if (current.passable(x, py)) {
+        x = Math.round(x * 100) / 100;
+        y = Math.round(y * 100) / 100;
+
+        let xoffset = 0.02;
+        let yoffset = xoffset;
+        if (px % 1 < 0.5) {
+            xoffset *= -1;
+        }
+
+        if (py % 1 < 0.5) {
+            yoffset *= -1;
+        }
+
+        if (current.passable(x + xoffset, py + yoffset)) {
             player.x = x;
         }
 
-        if (current.passable(px, y)) {
+        if (current.passable(px + xoffset, y + yoffset)) {
             player.y = y;
         }
 
@@ -147,6 +160,7 @@ export default class Game {
 
     buildShadows() {
         let points: number[] = [];
+        const shadowScale = 500;
         for (const key in this.grid) {
             const node = this.grid[key] as Node;
             const [nx, ny] = node.position;
@@ -158,8 +172,8 @@ export default class Game {
                 const ray1 = normalize([x - px, y - py]);
                 const ray2 = normalize([dx - px, dy - py]);
 
-                const p1 = [x + ray1[0] * 5, y + ray1[1] * 5];
-                const p2 = [dx + ray2[0] * 5, dy + ray2[1] * 5];
+                const p1 = [x + ray1[0] * shadowScale, y + ray1[1] * shadowScale];
+                const p2 = [dx + ray2[0] * shadowScale, dy + ray2[1] * shadowScale];
 
                 points = points.concat([x, y], p1, [dx, dy], p1, [dx, dy], p2);
             }
