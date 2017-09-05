@@ -8,20 +8,22 @@ import { state } from './globals';
 const PLAYER_SCALE = 0.4;
 
 export default class Player {
-    hp: number = 1;
+    hp: number = 0;
     speed: number = INITIAL_PLAYER_SPEED / PLAYER_SCALE;
     x: number;
     y: number;
     program: Program;
     actualHP: number = 1;
 
-    constructor(public renderer: Renderer, public maze: Game) {
-        [this.x, this.y] = [
-            maze.start.position[0] + 0.501,
-            maze.start.position[1] + 0.501
-        ];
-
+    constructor(public renderer: Renderer) {
         this.program = new Program(renderer, vertex, playerFrag);
+    }
+
+    start(x: number, y: number) {
+        [this.x, this.y] = [
+            x + 0.5,
+            y + 0.5
+        ];
     }
 
     attack(damage: number) {
@@ -32,10 +34,11 @@ export default class Player {
     }
 
     simulate() {
-
         this.hp += (this.actualHP - this.hp) * state.delta * 0.9;
-        // this.hp = (this.hp * 0.8 + this.actualHP * 1.2) / 2;
 
+        if (this.hp < 0.15 && this.actualHP < 0.15) {
+            this.actualHP = 0;
+        }
     }
 
     draw() {

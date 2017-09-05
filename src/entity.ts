@@ -48,7 +48,7 @@ export class Bullet implements Entity {
             const a = dx - player.x;
             const b = dy - player.y;
             if (a * a + b * b < 0.04 * 0.04) {
-                player.attack(0.15);
+                player.attack(0.10);
                 return false;
             }
 

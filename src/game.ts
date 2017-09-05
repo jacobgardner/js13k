@@ -28,8 +28,8 @@ export default class Game {
     grid: Grid;
     start: Node;
     end: Node;
-    entities: Entity[] = [];
-    pendingEntities: Entity[] = [];
+    entities: Entity[];
+    pendingEntities: Entity[];
     player: Player;
     downMap: Map<number> = {};
 
@@ -43,12 +43,30 @@ export default class Game {
     shadowShaders: Program;
 
     constructor(public renderer: Renderer) {
-        [this.grid, this.start, this.end] = buildGrid();
         this.mazeShaders = new Program(renderer, vertex, hallFrag);
         this.enemyShaders = new Program(renderer, vertex, enemyFrag);
         this.bulletShaders = new Program(renderer, vertex, bulletFrag);
         this.shadowShaders = new Program(renderer, vertex, shadowFrag);
         this.flashlightShaders = new Program(renderer, vertex, flashlightFrag);
+
+        this.player = new Player(renderer);
+
+        this.buildWorld();
+
+        onkeydown = evt => {
+            this.downMap[evt.key.toLowerCase()] = 1;
+        };
+
+        onkeyup = evt => {
+            this.downMap[evt.key.toLowerCase()] = 0;
+        };
+
+    }
+
+    buildWorld() {
+        this.entities = [];
+        this.pendingEntities = [];
+        [this.grid, this.start, this.end] = buildGrid();
 
         for (const key in this.grid) {
             const node = this.grid[key] as Node;
@@ -65,15 +83,8 @@ export default class Game {
             }
         }
 
-        onkeydown = evt => {
-            this.downMap[evt.key.toLowerCase()] = 1;
-        };
+        this.player.start(this.start.position[0], this.start.position[1]);
 
-        onkeyup = evt => {
-            this.downMap[evt.key.toLowerCase()] = 0;
-        };
-
-        this.player = new Player(renderer, this);
     }
 
     processInput() {
@@ -236,6 +247,12 @@ export default class Game {
         }
 
         player.simulate();
+
+        if (player.hp < 0.01 && player.actualHP < 1) {
+            player.actualHP = 1;
+            this.buildWorld();
+        }
+
         player.draw();
 
         this.flashlightShaders.use();
