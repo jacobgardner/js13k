@@ -248,11 +248,6 @@ export default class Game {
 
         player.simulate();
 
-        if (player.hp < 0.01 && player.actualHP < 1) {
-            player.actualHP = 1;
-            this.buildWorld();
-        }
-
         player.draw();
 
         this.flashlightShaders.use();
@@ -276,6 +271,11 @@ export default class Game {
             this.renderer.modelMat = setMatrix(0, 0, 1);
             this.renderer.setMatrices();
             gl.drawArrays(gl.TRIANGLES, 0, this.shadowCount);
+        }
+
+        if (player.hp < 0.01 && player.actualHP < 1) {
+            player.actualHP = 1;
+            this.buildWorld();
         }
     }
 
