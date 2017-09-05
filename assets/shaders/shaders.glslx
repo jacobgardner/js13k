@@ -45,6 +45,10 @@ export void enemyFrag() {
     gl_FragColor = vec4(1, 0, 0, alpha);
 }
 
+export void shadowFrag() {
+    gl_FragColor = vec4(0, 0, 0, 1);
+}
+
 export void bulletFrag() {
     vec2 offset = squarePos - 0.5;
 

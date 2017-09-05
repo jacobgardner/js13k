@@ -2,7 +2,13 @@ import buildGrid, { Grid } from './grid';
 import Node from './node';
 import { SIZE_X, SIZE_Y, RENDER_AOE } from './config';
 import Renderer, { Program } from './renderer';
-import { vertex, hallFrag, enemyFrag, bulletFrag } from './shaders/shaders';
+import {
+    vertex,
+    hallFrag,
+    enemyFrag,
+    bulletFrag,
+    shadowFrag
+} from './shaders/shaders';
 import { Entity, Enemy } from './entity';
 import { random } from './random';
 import Player from './player';
@@ -10,6 +16,7 @@ import { state } from './globals';
 
 // @if DEBUG
 import { nodeToChar } from './debug';
+import { normalize, setMatrix } from './lib';
 // @endif
 
 interface Map<T> {
@@ -25,21 +32,26 @@ export default class Game {
     player: Player;
     downMap: Map<number> = {};
 
+    shadowBuffer: WebGLBuffer;
+    shadowCount: number = 0;
+
     mazeShaders: Program;
     enemyShaders: Program;
     bulletShaders: Program;
+    shadowShaders: Program;
 
     constructor(public renderer: Renderer) {
         [this.grid, this.start, this.end] = buildGrid();
         this.mazeShaders = new Program(renderer, vertex, hallFrag);
         this.enemyShaders = new Program(renderer, vertex, enemyFrag);
         this.bulletShaders = new Program(renderer, vertex, bulletFrag);
+        this.shadowShaders = new Program(renderer, vertex, shadowFrag);
 
         for (const key in this.grid) {
             const node = this.grid[key] as Node;
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
-                const entityCount = random(0, 3);
+                const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {
                     const enemy = new Enemy(
                         node.position[0] + 0.2 + Math.random() * 0.6,
@@ -49,8 +61,6 @@ export default class Game {
                 }
             }
         }
-
-        console.log(this.entities);
 
         onkeydown = evt => {
             this.downMap[evt.key.toLowerCase()] = 1;
@@ -130,6 +140,55 @@ export default class Game {
         }
     }
 
+    buildShadows() {
+        let points: number[] = [];
+        for (const key in this.grid) {
+            const node = this.grid[key] as Node;
+            const [nx, ny] = node.position;
+            const [px, py] = [this.player.x, this.player.y];
+            const x = px - nx;
+            const y = py - ny;
+
+            function buildShadow(x: number, y: number, dx: number, dy: number) {
+                const ray1 = normalize([x - px, y - py]);
+                const ray2 = normalize([dx - px, dy - py]);
+
+                const p1 = [x + ray1[0] * 5, y + ray1[1] * 5];
+                const p2 = [dx + ray2[0] * 5, dy + ray2[1] * 5];
+
+                points = points.concat([x, y], p1, [dx, dy], p1, [dx, dy], p2);
+            }
+
+            // Use to build shadows
+            if (x * x + y * y < 2 * 2) {
+                if (!node.passable(nx, ny - 1)) {
+                    // Bottom blocked
+                    buildShadow(nx, ny, nx + 1, ny);
+                }
+
+                if (!node.passable(nx - 1, ny)) {
+                    // left blocked
+                    buildShadow(nx, ny, nx, ny + 1);
+                }
+            }
+            // if (this.player.x * )
+        }
+
+        const { gl } = this.renderer;
+
+        if (this.shadowBuffer) {
+            gl.deleteBuffer(this.shadowBuffer);
+        }
+        this.shadowBuffer = gl.createBuffer() as WebGLBuffer;
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.shadowBuffer);
+        // console.log(points);
+        // console.log(new Float32Array(points));
+        const floatArray = new Float32Array(points);
+        gl.bufferData(gl.ARRAY_BUFFER, floatArray, gl.STREAM_DRAW);
+
+        this.shadowCount = floatArray.length / 2;
+    }
+
     draw() {
         state.lastFrame = state.lastFrame + state.delta * 1000;
         state.delta = (Date.now() - state.lastFrame) / 1000;
@@ -144,6 +203,8 @@ export default class Game {
             0,                 0,                 1, 0,
             -SCALE * player.x, -SCALE * player.y, 1, 1
         ]);
+
+        this.buildShadows();
 
         const gl = this.renderer.gl;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
@@ -182,6 +243,22 @@ export default class Game {
         }
 
         player.draw();
+
+        if (this.shadowCount) {
+            this.shadowShaders.use();
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.shadowBuffer);
+            gl.vertexAttribPointer(
+                this.mazeShaders.vertPos,
+                2,
+                gl.FLOAT,
+                false,
+                0,
+                0
+            );
+            this.renderer.modelMat = setMatrix(0, 0, 1);
+            this.renderer.setMatrices();
+            gl.drawArrays(gl.TRIANGLES, 0, this.shadowCount);
+        }
     }
 
     // @if DEBUG
