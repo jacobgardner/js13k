@@ -42,14 +42,17 @@ export class Bullet implements Entity {
             Math.floor(this.y)
         ) as Node;
         const player = game.player;
-        if (current.passable(dx, dy)) {
+        if (current !== game.start && current !== game.end && current.passable(dx, dy)) {
             // Check for player collision
+            const {x, y} = player;
 
-            const a = dx - player.x;
-            const b = dy - player.y;
-            if (a * a + b * b < 0.04 * 0.04) {
-                player.attack(0.06);
-                return false;
+            if (current.passable(x, y)) {
+                const a = dx - x;
+                const b = dy - y;
+                if (a * a + b * b < 0.04 * 0.04) {
+                    player.attack(0.06);
+                    return false;
+                }
             }
 
             this.x = dx;
