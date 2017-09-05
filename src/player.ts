@@ -3,6 +3,7 @@ import Game from './game';
 import { vertex, playerFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
 import { INITIAL_PLAYER_SPEED } from './config';
+import { state } from './globals';
 
 const PLAYER_SCALE = 0.4;
 
@@ -12,6 +13,7 @@ export default class Player {
     x: number;
     y: number;
     program: Program;
+    actualHP: number = 1;
 
     constructor(public renderer: Renderer, public maze: Game) {
         [this.x, this.y] = [
@@ -20,6 +22,20 @@ export default class Player {
         ];
 
         this.program = new Program(renderer, vertex, playerFrag);
+    }
+
+    attack(damage: number) {
+        this.actualHP -= damage;
+        if (this.actualHP < 0) {
+            this.actualHP = 0;
+        }
+    }
+
+    simulate() {
+
+        this.hp += (this.actualHP - this.hp) * state.delta * 0.9;
+        // this.hp = (this.hp * 0.8 + this.actualHP * 1.2) / 2;
+
     }
 
     draw() {

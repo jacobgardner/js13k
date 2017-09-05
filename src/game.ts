@@ -7,7 +7,8 @@ import {
     hallFrag,
     enemyFrag,
     bulletFrag,
-    shadowFrag
+    shadowFrag,
+    flashlightFrag
 } from './shaders/shaders';
 import { Entity, Enemy } from './entity';
 import { random } from './random';
@@ -38,6 +39,7 @@ export default class Game {
     mazeShaders: Program;
     enemyShaders: Program;
     bulletShaders: Program;
+    flashlightShaders: Program;
     shadowShaders: Program;
 
     constructor(public renderer: Renderer) {
@@ -46,6 +48,7 @@ export default class Game {
         this.enemyShaders = new Program(renderer, vertex, enemyFrag);
         this.bulletShaders = new Program(renderer, vertex, bulletFrag);
         this.shadowShaders = new Program(renderer, vertex, shadowFrag);
+        this.flashlightShaders = new Program(renderer, vertex, flashlightFrag);
 
         for (const key in this.grid) {
             const node = this.grid[key] as Node;
@@ -81,16 +84,6 @@ export default class Game {
         const py = player.y;
         const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
 
-        function update(x: number, y: number, dx: number, dy: number) {
-            const node = grid.get(Math.floor(x), Math.floor(y)) as Node;
-            if (current.children.indexOf(node) !== -1) {
-                player.x = dx;
-                player.y = dy;
-                return true;
-            }
-            return false;
-        }
-
         // @if DEPLOY || DEBUG
         if (downMap.arrowup) {
             y -= player.speed * state.delta;
@@ -125,11 +118,11 @@ export default class Game {
             x += player.speed * state.delta;
         }
 
-        if (Math.floor(x) === Math.floor(px) || current.passable(x, py)) {
+        if (current.passable(x, py)) {
             player.x = x;
         }
 
-        if (Math.floor(y) === Math.floor(py) || current.passable(px, y)) {
+        if (current.passable(px, y)) {
             player.y = y;
         }
 
@@ -242,7 +235,15 @@ export default class Game {
             this.entities.splice(this.entities.indexOf(entity), 1);
         }
 
+        player.simulate();
         player.draw();
+
+        this.flashlightShaders.use();
+        this.renderer.modelMat = setMatrix(this.player.x - 1, this.player.y - 1, 2);
+        this.renderer.setMatrices();
+        gl.uniform1f(this.flashlightShaders.t, this.player.hp);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
 
         if (this.shadowCount) {
             this.shadowShaders.use();
