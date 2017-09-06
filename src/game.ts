@@ -68,26 +68,29 @@ export default class Game {
             this.downMap[evt.key.toLowerCase()] = 0;
         };
 
-        window.ontouchstart = evt => {
+        const start = (evt: any) => {
             evt.preventDefault();
             const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
             this.startVector = [root.clientX, root.clientY];
         };
-
-        window.ontouchend = evt => {
+        const end = (evt: any) => {
             evt.preventDefault();
             this.startVector = [0, 0];
         };
-
-        window.ontouchmove = evt => {
+        const move = (evt: any) => {
             evt.preventDefault();
             const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
             this.currentVector = [root.clientX, root.clientY];
         };
 
-        onmouseup = ontouchend as any;
-        onmousedown = ontouchstart as any;
-        onmousemove = ontouchmove as any;
+
+        addEventListener('touchstart', start, {passive: false} as any);
+        addEventListener('touchend', end, {passive: false} as any);
+        addEventListener('touchmove', move, {passive: false} as any);
+
+        onmouseup = end;
+        onmousedown = start;
+        onmousemove = move;
     }
 
     buildWorld() {
