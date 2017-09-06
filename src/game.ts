@@ -8,7 +8,8 @@ import {
     enemyFrag,
     bulletFrag,
     shadowFrag,
-    flashlightFrag
+    flashlightFrag,
+    indicatorFrag
 } from './shaders/shaders';
 import { Entity, Enemy } from './entity';
 import { random } from './random';
@@ -42,6 +43,7 @@ export default class Game {
     bulletShaders: Program;
     flashlightShaders: Program;
     shadowShaders: Program;
+    indicatorShaders: Program;
 
     constructor(public renderer: Renderer) {
         this.mazeShaders = new Program(renderer, vertex, hallFrag);
@@ -49,6 +51,7 @@ export default class Game {
         this.bulletShaders = new Program(renderer, vertex, bulletFrag);
         this.shadowShaders = new Program(renderer, vertex, shadowFrag);
         this.flashlightShaders = new Program(renderer, vertex, flashlightFrag);
+        this.indicatorShaders = new Program(renderer, vertex, indicatorFrag);
 
         this.player = new Player(renderer);
 
@@ -299,6 +302,30 @@ export default class Game {
             gl.uniform1f(this.shadowShaders.hp, this.player.hp);
             gl.drawArrays(gl.TRIANGLES, 0, this.shadowCount);
         }
+
+        let exitVec: [number, number] = [this.end.position[0] + 0.5 - this.player.x, this.end.position[1] + 0.5 - this.player.y];
+
+        const maxDist = 0.75;
+        if (exitVec[0] * exitVec[0] + exitVec[1] * exitVec[1] > maxDist * maxDist) {
+            exitVec = normalize(exitVec);
+            // console.log(exitVec);
+            exitVec = [exitVec[0] * maxDist, exitVec[1] * maxDist];
+        }
+
+        this.indicatorShaders.use();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
+        gl.vertexAttribPointer(
+            this.indicatorShaders.vertPos,
+            2,
+            gl.FLOAT,
+            false,
+            0,
+            0
+        );
+        this.renderer.modelMat = setMatrix(player.x - 0.5 + exitVec[0], player.y - 0.5 + exitVec[1], 1);
+        this.renderer.setMatrices();
+
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
         if (
             (player.hp < 0.01 && player.actualHP < 1) ||

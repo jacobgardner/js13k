@@ -1,7 +1,6 @@
 Tasks
 =====
 
- * Have indicator showing where exit is.
  * Draw muted exit on top of shadows?
  * Implement progression system:
     * Start level at 2x2, then increase in size logarithmically?
@@ -33,6 +32,7 @@ Tasks
  * Use Object pools to prevent garbage collection
  * Make the player HP more apparent.
  * Show current/max score in title bar
+ * Show how many white boxes you done hit.
  * Mobile Support
     * Press and drag in a direction for movement.
  * Soft Shadows
@@ -42,7 +42,12 @@ Tasks
  * Radiosity
  * Pick a title, I guess
 
+## Improvements
+ * Add white noise for music.
+ * Make indicator prettier.
+
 ## Done
  * Music by Dan
     * Make it pan left/right based on the exit being left/right of you.
     * Make it increase/decrease in volume based on distance and/or health.
+ * Have indicator showing where exit is.

@@ -1,25 +1,5 @@
 import IChannel from '../audio/channel';
 
-// function buildOscillatorTable(context: AudioContext) {
-
-// }
-
-// const context = new AudioContext();
-// const gain = context.createGain();
-// const oscillator = context.createOscillator();
-// oscillator.type = 'square';
-// // oscillator.frequency.value = 30;
-// oscillator.frequency.setValueAtTime(30, 0);
-// gain.connect(context.destination);
-// gain.gain.value = 0.02;
-// oscillator.connect(gain);
-// oscillator.start();
-// oscillator.frequency.setValueAtTime(220, 1);
-// oscillator.frequency.setValueAtTime(0, 5);
-// gain.gain.linearRampToValueAtTime(0, 5);
-
-// console.log(channels);
-
 function getPitch(root: number, n: number): number {
     return root * Math.pow(2, (n - 49) / 12);
 }
@@ -35,22 +15,7 @@ class Channel {
         public ticksPerBeat: number,
         public beatsPerMinute: number,
         public beatsPerBar: number,
-    ) {
-        // for (const sequence of channel[1]) {
-        //     for (const note of sequence) {
-        //         for (let pIdx = 0; pIdx < note.p.length; pIdx += 1) {
-        //             const point = note.p[pIdx];
-        //             const t = point.t * speed;
-        //             for (let i = 0; i < note.n.length; i += 1) {
-        //                 const pitch = note.n[i];
-        //                 const oscillator = this.get(i);
-        //                 const pitchHz = pIdx === note.p.length - 1 ? 0 : getPitch(440, pitch);
-        //                 oscillator.frequency.setValueAtTime(pitchHz, t);
-        //             }
-        //         }
-        //     }
-        // }
-    }
+    ) { }
 
     playSequence(sequenceNumber: number, offset: number) {
         const sequence = this.channel[1][sequenceNumber];

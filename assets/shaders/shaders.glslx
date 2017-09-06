@@ -63,6 +63,14 @@ float waver(float t) {
     return (1.0+0.2*sin(0.005*t) + 0.05*sin(0.8*t) + 0.4 * sin(0.024*t) + 0.2 * sin(0.1*t)) / 10.0;
 }
 
+export void indicatorFrag() {
+    vec2 offset = squarePos - 0.5;
+
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.04));
+
+    gl_FragColor = vec4(0, 0.75, 0.75, alpha * 0.85);
+}
+
 export void flashlightFrag() {
     vec2 offset = squarePos - 0.5;
 
