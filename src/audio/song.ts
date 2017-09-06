@@ -115,7 +115,7 @@ export default class Song {
 
         const context = new AudioContext();
         const gainNode = context.createGain();
-        gainNode.gain.value = 0.03;
+        gainNode.gain.value = 0.01;
         gainNode.connect(context.destination);
 
         for (const channel of channels) {
