@@ -7,13 +7,12 @@ import Song from './audio/song';
 // Intentionally mispelled for the extra byte!
 doc.title = 'Lst';
 const renderer = new Renderer();
-// const gl = initGL();
 
 const game = new Game(renderer);
 
 import * as dan from './music/someSong';
 const song = new Song(dan.channels, dan.tpb, dan.bpm, dan.bpb);
-song.play();
+// song.play();
 
 // @if DEBUG
 console.log(

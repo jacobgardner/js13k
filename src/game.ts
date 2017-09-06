@@ -1,6 +1,6 @@
 import buildGrid, { Grid } from './grid';
 import Node from './node';
-import { SIZE_X, SIZE_Y, RENDER_AOE } from './config';
+import { SIZE_X, SIZE_Y, RENDER_AOE, MAX_TOUCH_DISTANCE } from './config';
 import Renderer, { Program } from './renderer';
 import {
     vertex,
@@ -45,6 +45,9 @@ export default class Game {
     shadowShaders: Program;
     indicatorShaders: Program;
 
+    startVector: [number, number] = [0, 0];
+    currentVector: [number, number] = [0, 0];
+
     constructor(public renderer: Renderer) {
         this.mazeShaders = new Program(renderer, vertex, hallFrag);
         this.enemyShaders = new Program(renderer, vertex, enemyFrag);
@@ -64,6 +67,24 @@ export default class Game {
         onkeyup = evt => {
             this.downMap[evt.key.toLowerCase()] = 0;
         };
+
+        window.ontouchstart = evt => {
+            const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
+            this.startVector = [root.clientX, root.clientY];
+        };
+
+        window.ontouchend = evt => {
+            this.startVector = [0, 0];
+        };
+
+        window.ontouchmove = evt => {
+            const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
+            this.currentVector = [root.clientX, root.clientY];
+        };
+
+        onmouseup = ontouchend as any;
+        onmousedown = ontouchstart as any;
+        onmousemove = ontouchmove as any;
     }
 
     buildWorld() {
@@ -97,42 +118,57 @@ export default class Game {
         const py = player.y;
         const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
 
-        // @if DEPLOY || DEBUG
-        if (downMap.arrowup) {
-            y -= player.speed * state.delta;
+        if (!this.startVector[0] && !this.startVector[1]) {
+            // @if DEPLOY || DEBUG
+            if (downMap.arrowup) {
+                y -= player.speed * state.delta;
+            }
+
+            if (downMap.arrowdown) {
+                y += player.speed * state.delta;
+            }
+
+            if (downMap.arrowleft) {
+                x -= player.speed * state.delta;
+            }
+
+            if (downMap.arrowright) {
+                x += player.speed * state.delta;
+            }
+            // @endif
+
+            if (downMap.w) {
+                y -= player.speed * state.delta;
+            }
+
+            if (downMap.s) {
+                y += player.speed * state.delta;
+            }
+
+            if (downMap.a) {
+                x -= player.speed * state.delta;
+            }
+
+            if (downMap.d) {
+                x += player.speed * state.delta;
+            }
+        } else {
+            let actualVector: [number, number] = [this.currentVector[0] - this.startVector[0], this.currentVector[1] - this.startVector[1]];
+
+            if (actualVector[0] * actualVector[0] > MAX_TOUCH_DISTANCE * MAX_TOUCH_DISTANCE) {
+                actualVector = normalize(actualVector);
+            } else {
+                actualVector = [actualVector[0] / MAX_TOUCH_DISTANCE, actualVector[1] / MAX_TOUCH_DISTANCE];
+            }
+
+            x += actualVector[0] * player.speed * state.delta;
+            y += actualVector[1] * player.speed * state.delta;
+
+            // console.log(actualVector);
         }
 
-        if (downMap.arrowdown) {
-            y += player.speed * state.delta;
-        }
-
-        if (downMap.arrowleft) {
-            x -= player.speed * state.delta;
-        }
-
-        if (downMap.arrowright) {
-            x += player.speed * state.delta;
-        }
-        // @endif
-
-        if (downMap.w) {
-            y -= player.speed * state.delta;
-        }
-
-        if (downMap.s) {
-            y += player.speed * state.delta;
-        }
-
-        if (downMap.a) {
-            x -= player.speed * state.delta;
-        }
-
-        if (downMap.d) {
-            x += player.speed * state.delta;
-        }
-
-        x = Math.round(x * 100) / 100;
-        y = Math.round(y * 100) / 100;
+        // x = Math.round(x * 100) / 100;
+        // y = Math.round(y * 100) / 100;
 
         let xoffset = 0.01;
         let yoffset = xoffset;
@@ -303,10 +339,16 @@ export default class Game {
             gl.drawArrays(gl.TRIANGLES, 0, this.shadowCount);
         }
 
-        let exitVec: [number, number] = [this.end.position[0] + 0.5 - this.player.x, this.end.position[1] + 0.5 - this.player.y];
+        let exitVec: [number, number] = [
+            this.end.position[0] + 0.5 - this.player.x,
+            this.end.position[1] + 0.5 - this.player.y
+        ];
 
         const maxDist = 0.75;
-        if (exitVec[0] * exitVec[0] + exitVec[1] * exitVec[1] > maxDist * maxDist) {
+        if (
+            exitVec[0] * exitVec[0] + exitVec[1] * exitVec[1] >
+            maxDist * maxDist
+        ) {
             exitVec = normalize(exitVec);
             // console.log(exitVec);
             exitVec = [exitVec[0] * maxDist, exitVec[1] * maxDist];
@@ -322,7 +364,11 @@ export default class Game {
             0,
             0
         );
-        this.renderer.modelMat = setMatrix(player.x - 0.5 + exitVec[0], player.y - 0.5 + exitVec[1], 1);
+        this.renderer.modelMat = setMatrix(
+            player.x - 0.5 + exitVec[0],
+            player.y - 0.5 + exitVec[1],
+            1
+        );
         this.renderer.setMatrices();
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);

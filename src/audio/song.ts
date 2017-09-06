@@ -89,10 +89,13 @@ export default class Song {
 
         for (const channel of channels) {
             const channelObj = new Channel(context, gainNode, channel, ticksPerBeat, beatsPerMinute, beatsPerBar);
-            this.channels.push();
-            channelObj.play();
+            this.channels.push(channelObj);
         }
     }
 
-    play() {}
+    play() {
+        for (const channel of this.channels) {
+            channel.play();
+        }
+    }
 }

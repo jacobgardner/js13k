@@ -1,4 +1,3 @@
-import { initGL } from './gl';
 import { buildShader } from './shader';
 import { setMatrix } from './lib';
 
@@ -21,7 +20,7 @@ export class Program {
     constructor(private renderer: Renderer, ...shaders: string[]) {
         const prog = (this.shaderProgram = gl.createProgram() as WebGLProgram);
         for (let i = 0; i < 2; i += 1) {
-            gl.attachShader(prog, buildShader(i, shaders[i]));
+            gl.attachShader(prog, buildShader(gl, i, shaders[i]));
         }
         gl.linkProgram(prog);
 
@@ -64,11 +63,64 @@ export default class Renderer {
     currentProgram: Program;
     gl: WebGLRenderingContext;
     modelMat: Float32Array;
+    projMat: Float32Array;
     camera: Float32Array = setMatrix(-8, -8, 0.85, 0);
     squareBuffer: WebGLBuffer;
 
     constructor() {
-        this.gl = gl = initGL();
+        const canvas = document.querySelector('canvas') as HTMLCanvasElement;
+
+        gl = this.gl = canvas.getContext('webgl') as WebGLRenderingContext;
+        console.log(gl);
+
+        // @if DEBUG
+        if (!gl) {
+            throw new Error(`WebGL couldn't be initialized`);
+        }
+        // @endif
+
+        const resize = () => {
+            const width = innerWidth;
+            const height = innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+
+            let left = -10;
+            let right = 10;
+            let bottom = 10;
+            let top = -10;
+
+            // const ratio = width / height;
+
+            // if (width > height) {
+            //     left *= ratio;
+            //     right *= ratio;
+            // } else {
+
+            // }
+
+            const lr = 1 / (left - right);
+            const bt = 1 / (bottom - top);
+            const nf = 1 / (-80 - 80);
+
+            // prettier-ignore
+            this.projMat = new Float32Array([
+                -2 * lr, 0, 0, 0,
+                0, -2 * bt, 0, 0,
+                0, 0, 2 * nf, 0,
+                (left + right) * lr, (top + bottom) * bt, 0, 1
+            ])
+
+            gl.viewport(0, 0, width, height);
+        }
+
+        onresize = resize;
+        resize();
+
+        // Setup Buffers etc.
+        gl.clearColor(0, 0, 0, 1);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
 
         this.squareBuffer = gl.createBuffer() as WebGLBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, this.squareBuffer);
@@ -93,29 +145,10 @@ export default class Renderer {
     }
 
     setMatrices() {
-        const left = -10;
-        const right = 10;
-        const bottom = 10;
-        const top = -10;
-
-        const lr = 1 / (left - right);
-        const bt = 1 / (bottom - top);
-        const nf = 1 / (-80 - 80);
-
         // TODO: We can probably (definitely) use 2/3d matrices for this
         gl.uniformMatrix4fv(this.currentProgram.viewMat, false, this.camera);
 
         gl.uniformMatrix4fv(this.currentProgram.modelMat, false, this.modelMat);
-        gl.uniformMatrix4fv(
-            this.currentProgram.projMat,
-            false,
-            // prettier-ignore
-            new Float32Array([
-                -2 * lr, 0, 0, 0,
-                0, -2 * bt, 0, 0,
-                0, 0, 2 * nf, 0,
-                (left + right) * lr, (top + bottom) * bt, 0, 1
-            ])
-        );
+        gl.uniformMatrix4fv(this.currentProgram.projMat, false, this.projMat);
     }
 }

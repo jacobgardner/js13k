@@ -41,10 +41,14 @@ Tasks
  * Fix some audio bugs.
  * Radiosity
  * Pick a title, I guess
+ * Add check to see if your browser can use webgl, display error?
 
 ## Improvements
  * Add white noise for music.
  * Make indicator prettier.
+ * On walls, have player hug them when going too far.
+ * ^ Same with projectiles
+ * Draw indicator for where your touch event began
 
 ## Done
  * Music by Dan
