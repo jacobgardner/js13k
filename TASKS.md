@@ -28,6 +28,8 @@ Tasks
     * On damage
     * On death
     * On item pickup
+    * On enemy fire
+    * On enemy death
  * Use Object pools to prevent garbage collection
  * Make the player HP more apparent.
  * Show current/max score in title bar

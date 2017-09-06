@@ -66,9 +66,13 @@ class Channel {
                     const [oscillator, gainNode] = this.get(i);
 
                     if (pIdx === 0) {
-                        gainNode.gain.setValueAtTime(point.v / 100, t);
+                        gainNode.gain.setValueAtTime(point.v / 100, t + 0.01);
                     } else {
-                        gainNode.gain.linearRampToValueAtTime(point.v / 100, t);
+                        gainNode.gain.exponentialRampToValueAtTime(point.v / 100 || 0.00001, t - 0.03);
+                    }
+
+                    if (pIdx === note.p.length - 1) {
+                        gainNode.gain.exponentialRampToValueAtTime(0.0001, t);
                     }
 
                     const pitchHz =
