@@ -69,15 +69,18 @@ export default class Game {
         };
 
         window.ontouchstart = evt => {
+            evt.preventDefault();
             const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
             this.startVector = [root.clientX, root.clientY];
         };
 
         window.ontouchend = evt => {
+            evt.preventDefault();
             this.startVector = [0, 0];
         };
 
         window.ontouchmove = evt => {
+            evt.preventDefault();
             const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
             this.currentVector = [root.clientX, root.clientY];
         };
