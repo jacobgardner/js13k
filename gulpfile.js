@@ -22,7 +22,7 @@ gulp.task("browserSync-init", () => {
 
 gulp.task("watch-js", ["build"], () => {
     return gulp.watch(
-        ["src/**/*", "assets/shaders/**/*", "!src/shaders/**/*"],
+        ["src/**/*", "assets/**/*", "!src/shaders/**/*", "!src/music/**/*"],
         ["build"]
     );
 });

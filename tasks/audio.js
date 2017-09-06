@@ -5,8 +5,8 @@ const Vinyl = require('vinyl');
 
 function instrument(instrument) {
     return `{
-wave: waves.${instrument.wave.toUpperCase()},
-envelope: envelopes.${instrument.envelope.toUpperCase()},
+wave: waves.${instrument.wave.toUpperCase().replace(/ /g, '_')},
+envelope: envelopes.${instrument.envelope.toUpperCase().replace(/ /g, '_')},
 ${instrument.filter ?
         `filter: filters.${instrument.filter
             .toUpperCase()
@@ -15,13 +15,34 @@ ${instrument.filter ?
 }`;
 }
 
-function pattern(pattern) {
-    return `[${pattern.notes.filter(n => n.pitches.length > 0).map(n => `[${n.pitches.join(', ')}]`)}]`
+function buildPoint(point) {
+    return `{
+        t: ${point.tick},
+        b: ${point.pitchBend},
+        v: ${point.volume}
+    }`;
 }
 
-function patterns(patterns) {
-    const output = `[${patterns.map(p => pattern(p)).filter(p => p !== '[]').join(', ')}]`;
-    return output !== '[]' ? output : '[[]]';
+function buildPattern(pattern) {
+    const notes = [];
+
+    for (const note of pattern.notes) {
+        notes.push(`{
+            n: [${note.pitches.join(',')}],
+            p: [${note.points.map(buildPoint).join(', ')}]
+        }`)
+    }
+
+   return `[${notes.join(', ')}]`
+}
+
+function buildPatterns(patterns) {
+    const patternArray = []
+    for (const pattern of patterns) {
+        patternArray.push(buildPattern(pattern));
+    }
+
+    return `[${patternArray.join(', ')}]`;
 }
 
 function sequence(sequence) {
@@ -40,14 +61,14 @@ import IChannel from '../audio/channel';
 import * as waves from '../audio/waves';
 import * as envelopes from '../audio/envelopes';
 import * as filters from '../audio/filters';
-    
-export const speed = ${data.beatsPerMinute *
-            data.beatsPerBar *
-            data.ticksPerBeat}; 
+
+export const bpm = ${data.beatsPerMinute};
+export const bpb = ${data.beatsPerBar};
+export const tpb = ${data.ticksPerBeat};
 export const channels: IChannel[] = [
 ${data.channels.map(
             ch => `
-[${instrument(ch.instruments[0])}, ${patterns(ch.patterns)}, ${sequence(ch.sequence)}]
+[${instrument(ch.instruments[0])}, ${buildPatterns(ch.patterns)}, ${sequence(ch.sequence)}]
 `
         )}
 ];

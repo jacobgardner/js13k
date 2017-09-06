@@ -1,2 +1,5 @@
-export const SQUARE = 0;
-export const WHITE = 1;
+export const SQUARE = 'square';
+export const TRIANGLE = 'triangle';
+export const PULSE_WIDE = 'square';
+
+export const WHITE = 'square';

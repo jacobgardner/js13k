@@ -26,10 +26,10 @@ export default class Node {
             return true;
         }
 
-        for (const kid of this.children) {
+        for (const child of this.children) {
             if (
-                kid.position[0] === Math.floor(x) &&
-                kid.position[1] === Math.floor(y)
+                child.position[0] === Math.floor(x) &&
+                child.position[1] === Math.floor(y)
             ) {
                 return true;
             }
