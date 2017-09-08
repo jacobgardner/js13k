@@ -19,7 +19,19 @@ export default class Node {
         this.position = [x, y];
     }
 
-    passable(x: number, y: number): boolean {
+    passable(x: number, y: number, radius: number = 0): boolean {
+        if (x < 0.5) {
+            x -= radius;
+        } else {
+            x += radius;
+        }
+
+        if (y < 0.5) {
+            y -= radius;
+        } else {
+            y += radius;
+        }
+
         x = Math.floor(x);
         y = Math.floor(y);
         if (this.position[0] === x && this.position[1] === y) {

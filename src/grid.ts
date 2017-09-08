@@ -1,19 +1,31 @@
 import { random, randomPop } from './random';
-import { SIZE_X, SIZE_Y } from './config';
 import Game from './game';
 import Node from './node';
 
+interface GridCoord {
+    [key: string]: Node;
+}
+
 export class Grid {
+    nodes: GridCoord = {};
+
+    constructor(public width: number, public height: number) {}
+
     get(x: number, y: number): Node | null {
+        // @if DEBUG
+        if (x % 1 !== 0 || y % 1 !== 0) {
+            throw new Error('Input must be integer');
+        }
+        // @endif
         const coord = [x, y].toString();
 
-        if (x >= SIZE_X || y >= SIZE_Y || x < 0 || y < 0) {
+        if (x >= this.width || y >= this.height || x < 0 || y < 0) {
             return null;
         }
 
-        let node: Node = this[coord] as Node;
+        let node: Node = this.nodes[coord] as Node;
         if (!node) {
-            node = this[coord] = new Node(x, y);
+            node = this.nodes[coord] = new Node(x, y);
         }
 
         return node;
@@ -21,22 +33,20 @@ export class Grid {
 
     draw(game: Game) {
         game.mazeShaders.use();
-        for (const key in this) {
-            const node = this[key] as Node;
+        for (const key in this.nodes) {
+            const node = this.nodes[key];
             node.draw(game);
         }
     }
-
-    [key: string]: Node | Function;
 }
 
-export default function(): [Grid, Node, Node] {
-    const grid: Grid = new Grid();
+export default function(width: number, height: number): [Grid, Node, Node] {
+    const grid: Grid = new Grid(width, height);
 
     const adjacent = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
-    for (let x = 0; x < SIZE_X; x++) {
-        for (let y = 0; y < SIZE_Y; y++) {
+    for (let x = 0; x < width; x++) {
+        for (let y = 0; y < height; y++) {
             const node = grid.get(x, y) as Node;
 
             for (const offset of adjacent) {
@@ -48,7 +58,7 @@ export default function(): [Grid, Node, Node] {
         }
     }
 
-    const start = grid.get(random(0, SIZE_X), random(0, SIZE_Y)) as Node;
+    const start = grid.get(random(0, width), random(0, height)) as Node;
     const open: Node[] = [start];
 
     let end = start;

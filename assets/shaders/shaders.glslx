@@ -17,8 +17,8 @@ float circularIn(float t) {
     return 1.0 - t * t;
 }
 
-float softEdge(float t) {
-    float r = t < 0.45 ? 1.0 : t > 0.55 ? 0.0 : 1.0 - (t - 0.45) / 0.1;
+float softEdge(float t, float buffer) {
+    float r = t < 0.5 - buffer ? 1.0 : t > 0.5 + buffer ? 0.0 : 1.0 - (t - (0.5 - buffer)) / 0.1;
     return r * r;
 }
 
@@ -30,7 +30,7 @@ export void vertex() {
 export void playerFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1), 0.05);
 
     gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), hp);
 }
@@ -38,13 +38,22 @@ export void playerFrag() {
 export void enemyFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1));
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1), 0.05);
 
     gl_FragColor = vec4(1, 0, 0, alpha);
 }
 
+export void proximityFrag() {
+    vec2 offset = squarePos - 0.5;
+
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.2), 0.02);
+
+    gl_FragColor = vec4(0.3, 0.3, 0.7, alpha);
+}
+
 export void shadowFrag() {
-    gl_FragColor = mix(vec4(0, 0, 0, 1), vec4(1, 1, 1, 1), hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0);
+    const float alpha = 1.0;
+    gl_FragColor = mix(vec4(0, 0, 0, alpha), vec4(1, 1, 1, alpha), hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0);
 }
 
 export void bulletFrag() {
@@ -52,7 +61,7 @@ export void bulletFrag() {
 
     float dist = distance(vec2(0, 0), offset / 0.1);
 
-    float alpha = softEdge(dist);
+    float alpha = softEdge(dist, 0.05);
 
     float blue = (atan(offset.y / offset.x) + 1.0) / (2.0);
 
@@ -66,9 +75,9 @@ float waver(float t) {
 export void indicatorFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.04));
+    float alpha = softEdge(distance(vec2(0, 0), offset / 0.04), 0.05);
 
-    gl_FragColor = vec4(0, 0.75, 0.75, alpha * 0.85);
+    gl_FragColor = vec4(0, 0.75, 0.75, alpha * 0.85 * t);
 }
 
 export void flashlightFrag() {

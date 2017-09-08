@@ -20,6 +20,7 @@ Tasks
     * Shield for N seconds.
     * Drops bombs every N seconds for T seconds, damages enemies.
     * Speed Boost?
+    * Time Dilation
  * Possible Nodes:
     * Protection Node: No enemies may spawn here.  Bullets cannot penetrate.
  * Sound Effects:
@@ -33,8 +34,6 @@ Tasks
  * Make the player HP more apparent.
  * Show current/max score in title bar
  * Show how many white boxes you done hit.
- * Mobile Support
-    * Press and drag in a direction for movement.
  * Soft Shadows
  * Make light waver more when you're at low health.
  * Make light slightly red/muted at low health.
@@ -55,3 +54,5 @@ Tasks
     * Make it pan left/right based on the exit being left/right of you.
     * Make it increase/decrease in volume based on distance and/or health.
  * Have indicator showing where exit is.
+ * Mobile Support
+    * Press and drag in a direction for movement.

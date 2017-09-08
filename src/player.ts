@@ -8,7 +8,7 @@ const PLAYER_SCALE = 0.4;
 
 export default class Player {
     hp: number = 0;
-    speed: number = INITIAL_PLAYER_SPEED / PLAYER_SCALE;
+    speed: number = INITIAL_PLAYER_SPEED;
     x: number;
     y: number;
     program: Program;

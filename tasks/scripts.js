@@ -55,7 +55,7 @@ gulp.task('build-scripts', () => {
         stream = stream
             .pipe(
                 minify({
-                    mangle: true
+                    mangle: true,
                 })
             )
             .pipe(replace(/^\(\(\)=>{/, ''))

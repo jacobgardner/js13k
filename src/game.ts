@@ -1,6 +1,10 @@
+// @if DEBUG
+import { nodeToChar } from './debug';
+// @endif
+
 import buildGrid, { Grid } from './grid';
 import Node from './node';
-import { SIZE_X, SIZE_Y, RENDER_AOE, MAX_TOUCH_DISTANCE } from './config';
+import { RENDER_AOE, MAX_TOUCH_DISTANCE, TIME_DILATION } from './config';
 import Renderer, { Program } from './renderer';
 import {
     vertex,
@@ -9,17 +13,15 @@ import {
     bulletFrag,
     shadowFrag,
     flashlightFrag,
-    indicatorFrag
+    indicatorFrag,
+    proximityFrag
 } from './shaders/shaders';
-import { Entity, Enemy } from './entity';
+import { Entity, Shooter, ProximityMine } from './entity';
 import { random } from './random';
 import Player from './player';
 import { state } from './globals';
 import { normalize, setMatrix } from './lib';
-
-// @if DEBUG
-import { nodeToChar } from './debug';
-// @endif
+import { logarithmicProgression } from './progression';
 
 interface Map<T> {
     [key: string]: T;
@@ -35,23 +37,28 @@ export default class Game {
     downMap: Map<number> = {};
     startTime: number = Date.now();
 
+    level: number = 0;
+
     shadowBuffer: WebGLBuffer;
     shadowCount: number = 0;
 
     mazeShaders: Program;
-    enemyShaders: Program;
     bulletShaders: Program;
     flashlightShaders: Program;
     shadowShaders: Program;
     indicatorShaders: Program;
+
+    shooterProgram: Program;
+    proximityProgram: Program;
 
     startVector: [number, number] = [0, 0];
     currentVector: [number, number] = [0, 0];
 
     constructor(public renderer: Renderer) {
         this.mazeShaders = new Program(renderer, vertex, hallFrag);
-        this.enemyShaders = new Program(renderer, vertex, enemyFrag);
+        this.shooterProgram = new Program(renderer, vertex, enemyFrag);
         this.bulletShaders = new Program(renderer, vertex, bulletFrag);
+        this.proximityProgram = new Program(renderer, vertex, proximityFrag);
         this.shadowShaders = new Program(renderer, vertex, shadowFrag);
         this.flashlightShaders = new Program(renderer, vertex, flashlightFrag);
         this.indicatorShaders = new Program(renderer, vertex, indicatorFrag);
@@ -83,10 +90,9 @@ export default class Game {
             this.currentVector = [root.clientX, root.clientY];
         };
 
-
-        addEventListener('touchstart', start, {passive: false} as any);
-        addEventListener('touchend', end, {passive: false} as any);
-        addEventListener('touchmove', move, {passive: false} as any);
+        addEventListener('touchstart', start, { passive: false } as any);
+        addEventListener('touchend', end, { passive: false } as any);
+        addEventListener('touchmove', move, { passive: false } as any);
 
         onmouseup = end;
         onmousedown = start;
@@ -96,17 +102,20 @@ export default class Game {
     buildWorld() {
         this.entities = [];
         this.pendingEntities = [];
-        [this.grid, this.start, this.end] = buildGrid();
+        const size = logarithmicProgression(this.level);
+        [this.grid, this.start, this.end] = buildGrid(size, size);
 
-        for (const key in this.grid) {
-            const node = this.grid[key] as Node;
+        for (const key in this.grid.nodes) {
+            const node = this.grid.nodes[key];
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
                 const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {
-                    const enemy = new Enemy(
+                    const enemy = new ProximityMine(
                         node.position[0] + 0.2 + Math.random() * 0.6,
-                        node.position[1] + 0.2 + Math.random() * 0.6
+                        node.position[1] + 0.2 + Math.random() * 0.6,
+                        this.level,
+                        node.distance
                     );
                     this.entities.push(enemy);
                 }
@@ -159,12 +168,21 @@ export default class Game {
                 x += player.speed * state.delta;
             }
         } else {
-            let actualVector: [number, number] = [this.currentVector[0] - this.startVector[0], this.currentVector[1] - this.startVector[1]];
+            let actualVector: [number, number] = [
+                this.currentVector[0] - this.startVector[0],
+                this.currentVector[1] - this.startVector[1]
+            ];
 
-            if (actualVector[0] * actualVector[0] > MAX_TOUCH_DISTANCE * MAX_TOUCH_DISTANCE) {
+            if (
+                actualVector[0] * actualVector[0] >
+                MAX_TOUCH_DISTANCE * MAX_TOUCH_DISTANCE
+            ) {
                 actualVector = normalize(actualVector);
             } else {
-                actualVector = [actualVector[0] / MAX_TOUCH_DISTANCE, actualVector[1] / MAX_TOUCH_DISTANCE];
+                actualVector = [
+                    actualVector[0] / MAX_TOUCH_DISTANCE,
+                    actualVector[1] / MAX_TOUCH_DISTANCE
+                ];
             }
 
             x += actualVector[0] * player.speed * state.delta;
@@ -204,8 +222,8 @@ export default class Game {
     buildShadows() {
         let points: number[] = [];
         const shadowScale = 500;
-        for (const key in this.grid) {
-            const node = this.grid[key] as Node;
+        for (const key in this.grid.nodes) {
+            const node = this.grid.nodes[key];
             const [nx, ny] = node.position;
             const [px, py] = [this.player.x, this.player.y];
             const x = px - nx;
@@ -258,8 +276,8 @@ export default class Game {
     }
 
     draw() {
-        state.lastFrame = state.lastFrame + state.delta * 1000;
-        state.delta = (Date.now() - state.lastFrame) / 1000;
+        state.lastFrame = state.lastFrame + state.delta * 1000 / TIME_DILATION;
+        state.delta = (Date.now() - state.lastFrame) / 1000 * TIME_DILATION;
         this.processInput();
 
         const SCALE = 12;
@@ -351,14 +369,18 @@ export default class Game {
         ];
 
         const maxDist = 0.75;
-        if (
-            exitVec[0] * exitVec[0] + exitVec[1] * exitVec[1] >
-            maxDist * maxDist
-        ) {
+
+        const indicatorDist = Math.sqrt(
+            Math.pow(exitVec[0], 2) + Math.pow(exitVec[1], 2)
+        );
+        let indicatorAlpha = 0;
+        if (indicatorDist > maxDist * maxDist) {
             exitVec = normalize(exitVec);
-            // console.log(exitVec);
             exitVec = [exitVec[0] * maxDist, exitVec[1] * maxDist];
         }
+
+        indicatorAlpha = indicatorDist < 0.5 ? 0 : indicatorDist > 1.5 ? 1 : indicatorDist - 0.5;
+
 
         this.indicatorShaders.use();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
@@ -376,6 +398,7 @@ export default class Game {
             1
         );
         this.renderer.setMatrices();
+        gl.uniform1f(this.indicatorShaders.t, indicatorAlpha);
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
@@ -383,6 +406,11 @@ export default class Game {
             (player.hp < 0.01 && player.actualHP < 1) ||
             (player.hp >= 1.5 && player.actualHP > 1.5)
         ) {
+            if (player.hp > 1) {
+                this.level += 1;
+            } else {
+                this.level = 0;
+            }
             player.actualHP = 1;
             this.buildWorld();
         }
@@ -400,10 +428,10 @@ export default class Game {
     // @if DEBUG
     toString() {
         const lines = [];
-        for (let y = 0; y < SIZE_Y; y++) {
+        for (let y = 0; y < this.grid.height; y++) {
             const line = [];
-            for (let x = 0; x < SIZE_X; x++) {
-                line.push(this.grid[[x, y].toString()]);
+            for (let x = 0; x < this.grid.width; x++) {
+                line.push(this.grid.get(x, y));
             }
 
             lines.push(
