@@ -129,8 +129,6 @@ export class ProximityMine extends Enemy {
         );
         renderer.setMatrices();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-
     }
 
     simulate(game: Game) {
@@ -145,46 +143,46 @@ export class ProximityMine extends Enemy {
         const vec = normalize([dx, dy]);
         const dist = dx * dx + dy * dy;
 
-        if (currentNode.passable(Math.floor(x), Math.floor(y))) {
-            if (!this.startTime && dist < 0.5) {
-                this.startTime = Date.now();
-            } else if (this.startTime) {
-                let delta = (Date.now() - this.startTime) * config.TIME_DILATION;
+        const lineOfSight = currentNode.passable(Math.floor(x), Math.floor(y));
 
-                if (delta < this.chaseTime) {
-                    if (dist > 0.001) {
-                        const t = (Date.now() - this.startTime) / this.accelTime;
-                        const speed = lerp(0, this.maxSpeed, t > 1 ? 1 : t);
-                        this.x = this.x + vec[0] * speed * state.delta;
-                        this.y = this.y + vec[1] * speed * state.delta;
-                    }
-                } else if (delta < this.chaseTime + this.explodeTime) {
-                    delta -= this.chaseTime;
+        if (!this.startTime && dist < 0.5 && lineOfSight) {
+            this.startTime = Date.now();
+        } else if (this.startTime) {
+            let delta = (Date.now() - this.startTime) * config.TIME_DILATION;
 
-                    let percentDone;
-                    if (delta > this.explodeTime / 2) {
-                        percentDone = 2 - 2 * delta / this.explodeTime;
-                        this.enemyScale =
-                            this.maxEnemyScale * percentDone;
-                    } else {
-                        percentDone = 2 * delta / this.explodeTime;
-                    }
-
-                    this.explosionScale = this.maxExplosionScale * percentDone;
-
-                    const explosionDist = Math.pow((this.explosionScale + player.playerScale) / 2, 2);
-
-                    if (!this.spent && dist < explosionDist)  {
-                        player.attack(0.5);
-                        this.spent = true;
-                    }
-
-                } else {
-                    return false;
+            if (delta < this.chaseTime) {
+                if (dist > 0.001 && lineOfSight) {
+                    const t = (Date.now() - this.startTime) / this.accelTime;
+                    const speed = lerp(0, this.maxSpeed, t > 1 ? 1 : t);
+                    this.x = this.x + vec[0] * speed * state.delta;
+                    this.y = this.y + vec[1] * speed * state.delta;
                 }
+            } else if (delta < this.chaseTime + this.explodeTime) {
+                delta -= this.chaseTime;
+
+                let percentDone;
+                if (delta > this.explodeTime / 2) {
+                    percentDone = 2 - 2 * delta / this.explodeTime;
+                    this.enemyScale = this.maxEnemyScale * percentDone;
+                } else {
+                    percentDone = 2 * delta / this.explodeTime;
+                }
+
+                this.explosionScale = this.maxExplosionScale * percentDone;
+
+                const explosionDist = Math.pow(
+                    (this.explosionScale + player.playerScale) / 2,
+                    2
+                );
+
+                if (!this.spent && dist < explosionDist) {
+                    player.attack(0.5);
+                    this.spent = true;
+                }
+            } else {
+                return false;
             }
         }
-
         return true;
     }
 }

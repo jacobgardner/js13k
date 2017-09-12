@@ -4,7 +4,7 @@ import { setMatrix } from './lib';
 import config from './config';
 import { state } from './globals';
 
-const PLAYER_SCALE = 0.06;
+const PLAYER_SCALE = 0.04;
 
 export default class Player {
     hp: number = 0;

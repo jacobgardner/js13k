@@ -396,9 +396,9 @@ export default class Game {
             0
         );
         this.renderer.modelMat = setMatrix(
-            player.x - 0.04 + exitVec[0],
-            player.y - 0.04 + exitVec[1],
-            0.08
+            player.x - 0.02 + exitVec[0],
+            player.y - 0.02 + exitVec[1],
+            0.04
         );
         this.renderer.setMatrices();
         gl.uniform1f(this.indicatorShaders.t, indicatorAlpha);

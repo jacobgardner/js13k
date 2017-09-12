@@ -3,7 +3,7 @@
 export default {
     INITIAL_PLAYER_SPEED: 1.2,
     TRANSITION: 350,
-    RENDER_AOE: 3,
+    RENDER_AOE: 4,
     MAX_TOUCH_DISTANCE: 150,
     TIME_DILATION: 1,
 }
