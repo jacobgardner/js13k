@@ -154,7 +154,7 @@ export default class Game {
 
     processInput() {
         const { player, grid, downMap } = this;
-        let {x, y} = player.position;
+        let { x, y } = player.position;
         // let [x, y] = [player.x, player.y];
 
         const px = x;
@@ -252,10 +252,10 @@ export default class Game {
         const shadowScale = 500;
         for (const key in this.grid.nodes) {
             const node = this.grid.nodes[key];
-            const {x: nx, y: ny} = node.position;
+            const { x: nx, y: ny } = node.position;
 
             // const playerPos = this.player.position;
-            const {x: px, y: py} = this.player.position;
+            const { x: px, y: py } = this.player.position;
             // const [px, py] = [this.player.x, this.player.y];
             const x = px - nx;
             const y = py - ny;
@@ -334,8 +334,10 @@ export default class Game {
         this.pendingEntities = [];
         for (const entity of this.entities) {
             if (
-                Math.abs(player.position.x - entity.position.x) > config.RENDER_AOE ||
-                Math.abs(player.position.y - entity.position.y) > config.RENDER_AOE
+                Math.abs(player.position.x - entity.position.x) >
+                    config.RENDER_AOE ||
+                Math.abs(player.position.y - entity.position.y) >
+                    config.RENDER_AOE
             ) {
                 continue;
             }

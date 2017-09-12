@@ -45,10 +45,7 @@ export class Grid {
             0
         );
 
-        gl.uniform1i(
-            game.mazeShaders.isMinimap,
-            isMinimap ? 1 : 0
-        );
+        gl.uniform1i(game.mazeShaders.isMinimap, isMinimap ? 1 : 0);
 
         for (const key in this.nodes) {
             const node = this.nodes[key];

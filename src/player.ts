@@ -37,8 +37,10 @@ export default class Player {
         }
 
         if (
-            this.game.grid.get(Math.floor(this.position.x), Math.floor(this.position.y)) ===
-            this.game.start
+            this.game.grid.get(
+                Math.floor(this.position.x),
+                Math.floor(this.position.y)
+            ) === this.game.start
         ) {
             return;
         }

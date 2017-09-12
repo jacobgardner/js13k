@@ -288,7 +288,6 @@ export class ProximityMine extends Enemy {
         const player = game.player;
         const { x, y } = player.position;
 
-
         const fullVec = player.position.subtract(this.position);
         // const [dx, dy] = [x - this.position.x, y - this.position.y];
         const normalVec = fullVec.normalize();
@@ -305,7 +304,9 @@ export class ProximityMine extends Enemy {
                 if (dist > 0.001 && lineOfSight) {
                     const t = (Date.now() - this.startTime) / this.accelTime;
                     const speed = lerp(0, this.maxSpeed, t > 1 ? 1 : t);
-                    this.position = this.position.add(normalVec.multiply(speed * state.delta));
+                    this.position = this.position.add(
+                        normalVec.multiply(speed * state.delta)
+                    );
 
                     // this.position.x = this.position.x + normalVec.x * speed * state.delta;
                     // this.position.y = this.position.y + normalVec.y * speed * state.delta;
@@ -330,7 +331,9 @@ export class ProximityMine extends Enemy {
 
                 for (const enemy of game.entities) {
                     if (enemy instanceof Shooter) {
-                        const enemyVector = this.position.subtract(enemy.position);
+                        const enemyVector = this.position.subtract(
+                            enemy.position
+                        );
                         // const [ex, ey] = [this.x - enemy.x, this.y - enemy.y];
                         const enemyDist = enemyVector.dist2();
                         if (
@@ -403,7 +406,9 @@ export class Shooter extends Enemy {
 
         if (Date.now() - this.prevShotTime > 1000) {
             this.prevShotTime = Date.now();
-            let vector = game.player.position.subtract(this.position).normalize();
+            let vector = game.player.position
+                .subtract(this.position)
+                .normalize();
             // let vector = normalize([
             //     game.player.x - this.x,
             //     game.player.y - this.y
