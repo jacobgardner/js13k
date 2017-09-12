@@ -27,3 +27,7 @@ export function normalize(vector: [number, number]): [number, number] {
     const length = Math.sqrt(x * x + y * y);
     return [x / length, y / length];
 }
+
+export function setTitle(levelNumber: number, maxNumber: number) {
+    document.title = `Current: ${levelNumber}, Max: ${maxNumber}`;
+}

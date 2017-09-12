@@ -4,8 +4,6 @@ import Renderer from './renderer';
 
 import Song from './audio/song';
 
-// Intentionally mispelled for the extra byte!
-doc.title = 'Lst';
 const renderer = new Renderer();
 
 const game = new Game(renderer);

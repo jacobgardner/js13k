@@ -21,7 +21,7 @@ import { Entity, Shooter, ProximityMine } from './entity';
 import { random } from './random';
 import Player from './player';
 import { state } from './globals';
-import { normalize, setMatrix } from './lib';
+import { normalize, setMatrix, setTitle } from './lib';
 import { logarithmicProgression } from './progression';
 
 interface Map<T> {
@@ -39,6 +39,7 @@ export default class Game {
     startTime: number = Date.now();
 
     level: number = 0;
+    maxLevel: number = 0;
 
     shadowBuffer: WebGLBuffer;
     shadowCount: number = 0;
@@ -108,6 +109,8 @@ export default class Game {
         const size = logarithmicProgression(this.level);
         [this.grid, this.start, this.end] = buildGrid(size, size);
 
+        setTitle(this.level, this.maxLevel);
+
         const enemyTypes = [ProximityMine, Shooter];
 
         for (const key in this.grid.nodes) {
@@ -116,7 +119,6 @@ export default class Game {
                 // we can pass in difficulty or whatever here
                 const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {
-
                     const Enemy = enemyTypes[random(0, enemyTypes.length)];
 
                     const enemy = new Enemy(
@@ -284,8 +286,10 @@ export default class Game {
     }
 
     draw() {
-        state.lastFrame = state.lastFrame + state.delta * 1000 / config.TIME_DILATION;
-        state.delta = (Date.now() - state.lastFrame) / 1000 * config.TIME_DILATION;
+        state.lastFrame =
+            state.lastFrame + state.delta * 1000 / config.TIME_DILATION;
+        state.delta =
+            (Date.now() - state.lastFrame) / 1000 * config.TIME_DILATION;
         this.processInput();
 
         const SCALE = 12;
@@ -387,8 +391,10 @@ export default class Game {
             exitVec = [exitVec[0] * maxDist, exitVec[1] * maxDist];
         }
 
-        indicatorAlpha = indicatorDist < 0.5 ? 0 : indicatorDist > 1.5 ? 1 : indicatorDist - 0.5;
-
+        indicatorAlpha =
+            indicatorDist < 0.5
+                ? 0
+                : indicatorDist > 1.5 ? 1 : indicatorDist - 0.5;
 
         this.indicatorShaders.use();
         gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
@@ -419,6 +425,11 @@ export default class Game {
             } else {
                 this.level = 0;
             }
+
+            if (this.level > this.maxLevel) {
+                this.maxLevel = this.level;
+            }
+
             player.actualHP = 1;
             this.buildWorld();
         }
