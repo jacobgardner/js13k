@@ -107,9 +107,13 @@ export void flashlightFrag() {
 }
 
 export void shieldFrag() {
-    vec2 offset = (squarePos - vec2(0.5, 0));
-    offset.x *= 25.0;
-    offset.y *= 25.0;
+    vec2 center = squarePos - 0.5;
+
+    float intensity = distance(vec2(0, 0), center) * 2.1;
+
+    vec2 offset = (squarePos - vec2(0.5, 0.8));
+    offset.x *= 23.0;
+    offset.y *= -36.0;
 
 
     bool on = false;
@@ -118,15 +122,17 @@ export void shieldFrag() {
         if (offset.x < -3.5) {
             on = offset.y < pow(offset.x + 3.5, 2.0) / 6.0 + 17.5;
         } else if (offset.x < 0.0) {
-            on = offset.y < pow(offset.x - 3.5, 2.0) / 6.0 + 17.5;
+            on = offset.y < pow(offset.x + 3.5, 2.0) / 1.7 + 17.5;
         } else if (offset.x < 3.5) {
             on = offset.y < pow(offset.x - 3.5, 2.0) / 1.7 + 17.5;
         } else {
-            on = offset.y < pow(offset.x + 3.5, 2.0) / 1.7 + 17.5;
+            on = offset.y < pow(offset.x - 3.5, 2.0) / 6.0 + 17.5;
         }
     }
 
-    gl_FragColor = on ? vec4(0, 1, 1, 1) : vec4(0, 0, 0, 0);
+    gl_FragColor = on ? mix(vec4(0, 1, 1, 1), vec4(0, 0.0, 0.0, 1), 1.0 - circularIn(intensity)) : vec4(0, 0, 0, 0);
+    // gl_FragColor = vec4(1, 0, 0,1 );
+
 
 }
 

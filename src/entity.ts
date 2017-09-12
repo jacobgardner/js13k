@@ -106,8 +106,8 @@ export class Shield extends Item {
         game.shieldProgram.use();
 
         renderer.modelMat = setMatrix(
-            this.x - 1 / 2,
-            this.y - 1 / 2,
+            this.x,
+            this.y,
             1
         );
         renderer.setMatrices();
