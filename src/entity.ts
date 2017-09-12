@@ -88,8 +88,10 @@ abstract class Enemy implements Entity {
 }
 
 abstract class Item implements Entity {
-    constructor(public x: number, public y: number) // public level: number,
-    // public distance: number
+    constructor(
+        public x: number,
+        public y: number // public level: number,
+    ) // public distance: number
     {
     }
 
@@ -105,7 +107,6 @@ export class Shield extends Item {
     constructor(x: number, y: number) {
         super(x + 0.5, y + 0.5);
     }
-
 
     draw(game: Game) {
         const renderer = game.renderer;
@@ -127,7 +128,8 @@ export class Shield extends Item {
         const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
 
         if (this.grabbed) {
-            this.fade = (Date.now() - this.grabbed) * config.TIME_DILATION / 300;
+            this.fade =
+                (Date.now() - this.grabbed) * config.TIME_DILATION / 300;
 
             if (this.fade > 1) {
                 return false;
@@ -148,7 +150,6 @@ export class MiniMap extends Item {
 
     constructor(x: number, y: number) {
         super(x + 0.5, y + 0.5);
-
     }
 
     draw(game: Game) {
@@ -184,12 +185,12 @@ export class MiniMap extends Item {
         //  caused by the upscale... but let's be real... who cares?
 
         renderer.modelMat = setMatrix(
-            -0.1 / minimapScale, -0.1 / minimapScale,
+            -0.1 / minimapScale,
+            -0.1 / minimapScale,
             game.grid.height * 1.2
         );
         renderer.setMatrices();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
 
         game.mazeShaders.use();
         gl.uniform1f(game.mazeShaders.fade, this.fade);
@@ -203,7 +204,8 @@ export class MiniMap extends Item {
         const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
 
         if (this.grabbed) {
-            this.fade = (Date.now() - this.grabbed) * config.TIME_DILATION / 300;
+            this.fade =
+                (Date.now() - this.grabbed) * config.TIME_DILATION / 300;
 
             if (this.fade > 1) {
                 return false;

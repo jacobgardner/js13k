@@ -1,5 +1,3 @@
-
-
 export default {
     INITIAL_PLAYER_SPEED: 1.2,
     TRANSITION: 350,
@@ -8,5 +6,5 @@ export default {
     TIME_DILATION: 1,
     CAMERA_SCALE: 12,
     MINIMAP_DURATION: 15000,
-    SHIELD_DURATION: 10000,
-}
+    SHIELD_DURATION: 10000
+};

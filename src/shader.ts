@@ -1,4 +1,8 @@
-export function buildShader(gl: WebGLRenderingContext, isFragShader: number, shaderContents: string) {
+export function buildShader(
+    gl: WebGLRenderingContext,
+    isFragShader: number,
+    shaderContents: string
+) {
     const shader = gl.createShader(
         isFragShader ? gl.FRAGMENT_SHADER : gl.VERTEX_SHADER
     );

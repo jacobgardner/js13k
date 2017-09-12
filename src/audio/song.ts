@@ -14,14 +14,16 @@ class Channel {
         public channel: IChannel,
         public ticksPerBeat: number,
         public beatsPerMinute: number,
-        public beatsPerBar: number,
-    ) { }
+        public beatsPerBar: number
+    ) {}
 
     playSequence(sequenceNumber: number, offset: number) {
         const sequence = this.channel[1][sequenceNumber];
 
         const speed = 60 / (this.ticksPerBeat * this.beatsPerMinute);
-        if (!sequence) {return;}
+        if (!sequence) {
+            return;
+        }
         for (const note of sequence) {
             for (let pIdx = 0; pIdx < note.p.length; pIdx += 1) {
                 const point = note.p[pIdx];
@@ -33,7 +35,10 @@ class Channel {
                     if (pIdx === 0) {
                         gainNode.gain.setValueAtTime(point.v / 100, t + 0.01);
                     } else {
-                        gainNode.gain.exponentialRampToValueAtTime(point.v / 100 || 0.00001, t - 0.03);
+                        gainNode.gain.exponentialRampToValueAtTime(
+                            point.v / 100 || 0.00001,
+                            t - 0.03
+                        );
                     }
 
                     if (pIdx === note.p.length - 1) {
@@ -49,11 +54,17 @@ class Channel {
     }
 
     play() {
-
-        for (let barNumber = 0; barNumber < this.channel[2].length; barNumber += 1) {
+        for (
+            let barNumber = 0;
+            barNumber < this.channel[2].length;
+            barNumber += 1
+        ) {
             const sequenceNumber = this.channel[2][barNumber] - 1;
 
-            this.playSequence(sequenceNumber, barNumber * this.beatsPerBar * 60 / this.beatsPerMinute);
+            this.playSequence(
+                sequenceNumber,
+                barNumber * this.beatsPerBar * 60 / this.beatsPerMinute
+            );
         }
     }
 
@@ -79,16 +90,26 @@ class Channel {
 export default class Song {
     channels: Channel[] = [];
 
-    constructor(channels: IChannel[], ticksPerBeat: number, beatsPerMinute: number, beatsPerBar: number) {
-
-
+    constructor(
+        channels: IChannel[],
+        ticksPerBeat: number,
+        beatsPerMinute: number,
+        beatsPerBar: number
+    ) {
         const context = new AudioContext();
         const gainNode = context.createGain();
         gainNode.gain.value = 0.01;
         gainNode.connect(context.destination);
 
         for (const channel of channels) {
-            const channelObj = new Channel(context, gainNode, channel, ticksPerBeat, beatsPerMinute, beatsPerBar);
+            const channelObj = new Channel(
+                context,
+                gainNode,
+                channel,
+                ticksPerBeat,
+                beatsPerMinute,
+                beatsPerBar
+            );
             this.channels.push(channelObj);
         }
     }

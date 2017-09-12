@@ -111,7 +111,7 @@ export default class Renderer {
             ])
 
             gl.viewport(0, 0, width, height);
-        }
+        };
 
         onresize = resize;
         resize();
