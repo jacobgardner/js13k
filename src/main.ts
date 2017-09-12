@@ -12,7 +12,7 @@ const game = new Game(renderer);
 
 import * as dan from './music/backToTheFuture';
 const song = new Song(dan.channels, dan.tpb, dan.bpm, dan.bpb);
-song.play();
+// song.play();
 
 // @if DEBUG
 console.log(

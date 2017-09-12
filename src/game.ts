@@ -108,13 +108,18 @@ export default class Game {
         const size = logarithmicProgression(this.level);
         [this.grid, this.start, this.end] = buildGrid(size, size);
 
+        const enemyTypes = [ProximityMine, Shooter];
+
         for (const key in this.grid.nodes) {
             const node = this.grid.nodes[key];
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
                 const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {
-                    const enemy = new ProximityMine(
+
+                    const Enemy = enemyTypes[random(0, enemyTypes.length)];
+
+                    const enemy = new Enemy(
                         node.position[0] + 0.2 + Math.random() * 0.6,
                         node.position[1] + 0.2 + Math.random() * 0.6,
                         this.level,

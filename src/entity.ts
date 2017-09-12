@@ -16,8 +16,9 @@ export interface Entity {
 }
 
 export class Bullet implements Entity {
-    bulletScale: number = 0.4;
-    bulletSpeed: number = 0.4 / this.bulletScale;
+    bulletScale: number = 0.05;
+    bulletSpeed: number = 0.6;
+
     vector: [number, number];
     constructor(public x: number, public y: number) {}
     draw(game: Game) {
@@ -175,8 +176,18 @@ export class ProximityMine extends Enemy {
                     2
                 );
 
+                for (const enemy of game.entities) {
+                    if (enemy instanceof Shooter) {
+                        const [ex, ey] = [this.x - enemy.x, this.y - enemy.y];
+                        const enemyDist = ex * ex + ey * ey;
+                        if (enemyDist < Math.pow((this.explosionScale + enemy.enemyScale) / 2, 2)) {
+                            enemy.dying = true;
+                        }
+                    }
+                }
+
                 if (!this.spent && dist < explosionDist) {
-                    player.attack(0.5);
+                    player.attack(0.25);
                     this.spent = true;
                 }
             } else {
@@ -188,8 +199,18 @@ export class ProximityMine extends Enemy {
 }
 
 export class Shooter extends Enemy {
-    enemyScale: number = 0.8;
+    maxEnemyScale: number = 0.13;
+    enemyScale: number;
     prevShotTime: number = Date.now();
+    dying: boolean = false;
+    dieStart: number;
+
+    constructor(x: number, y: number, level: number, distance: number) {
+        super(x, y, level, distance);
+
+        this.enemyScale = this.maxEnemyScale;
+    }
+
 
     draw(game: Game) {
         const renderer = game.renderer;
@@ -207,6 +228,22 @@ export class Shooter extends Enemy {
     }
 
     simulate(game: Game) {
+
+        if(this.dying) {
+            if (!this.dieStart) {
+                this.dieStart = Date.now();
+            } else {
+                const t = (Date.now() - this.dieStart) * config.TIME_DILATION;
+                this.enemyScale = lerp(this.enemyScale, 0, t);
+
+                if (this.enemyScale <= 0) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         if (Date.now() - this.prevShotTime > 1000) {
             this.prevShotTime = Date.now();
             let vector = normalize([
