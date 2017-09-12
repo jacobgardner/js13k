@@ -10,9 +10,9 @@ const renderer = new Renderer();
 
 const game = new Game(renderer);
 
-import * as dan from './music/someSong';
+import * as dan from './music/something';
 const song = new Song(dan.channels, dan.tpb, dan.bpm, dan.bpb);
-// song.play();
+song.play();
 
 // @if DEBUG
 console.log(
