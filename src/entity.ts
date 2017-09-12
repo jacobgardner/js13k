@@ -3,7 +3,7 @@ import { setMatrix } from './lib';
 import { state } from './globals';
 import Node from './node';
 import { normalize } from './lib';
-import { INITIAL_PLAYER_SPEED } from './config';
+import config from './config';
 import { lerp } from './progression';
 
 export interface Entity {
@@ -87,15 +87,24 @@ abstract class Enemy implements Entity {
 }
 
 export class ProximityMine extends Enemy {
-    enemyScale: number = 0.8;
+    maxEnemyScale: number = 0.2;
+    maxExplosionScale: number = 0.7;
+    enemyScale: number;
+    explosionScale: number = 0;
     currentSpeed: number = 0;
+    chaseTime: number = 2500;
+    accelTime: number = 600;
+    explodeTime: number = 500;
     maxSpeed: number;
     startTime: number;
+    spent = false;
 
     constructor(x: number, y: number, level: number, distance: number) {
         super(x, y, level, distance);
 
-        this.maxSpeed = INITIAL_PLAYER_SPEED * 0.9;
+        this.enemyScale = this.maxEnemyScale;
+
+        this.maxSpeed = config.INITIAL_PLAYER_SPEED * 0.8;
     }
 
     draw(game: Game) {
@@ -108,9 +117,20 @@ export class ProximityMine extends Enemy {
             this.y - this.enemyScale / 2,
             this.enemyScale
         );
-
         renderer.setMatrices();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+        game.explosionProgram.use();
+
+        renderer.modelMat = setMatrix(
+            this.x - this.explosionScale / 2,
+            this.y - this.explosionScale / 2,
+            this.explosionScale
+        );
+        renderer.setMatrices();
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
     }
 
     simulate(game: Game) {
@@ -120,7 +140,6 @@ export class ProximityMine extends Enemy {
         ) as Node;
         const player = game.player;
         const { x, y } = player;
-        // const playerNode = game.grid.get(Math.floor(x), Math.floor(y));
 
         const [dx, dy] = [x - this.x, y - this.y];
         const vec = normalize([dx, dy]);
@@ -130,18 +149,37 @@ export class ProximityMine extends Enemy {
             if (!this.startTime && dist < 0.5) {
                 this.startTime = Date.now();
             } else if (this.startTime) {
-                if (dist < 0.03 * 0.03) {
-                    player.attack(0.1);
-                }
+                let delta = (Date.now() - this.startTime) * config.TIME_DILATION;
 
-                if (dist > 0.001) {
-                    const t = (Date.now() - this.startTime) / 3000;
-                    const speed = lerp(0, this.maxSpeed, t > 1 ? 1 : t);
-                    this.x = this.x + vec[0] * speed * state.delta;
-                    this.y = this.y + vec[1] * speed * state.delta;
-                }
+                if (delta < this.chaseTime) {
+                    if (dist > 0.001) {
+                        const t = (Date.now() - this.startTime) / this.accelTime;
+                        const speed = lerp(0, this.maxSpeed, t > 1 ? 1 : t);
+                        this.x = this.x + vec[0] * speed * state.delta;
+                        this.y = this.y + vec[1] * speed * state.delta;
+                    }
+                } else if (delta < this.chaseTime + this.explodeTime) {
+                    delta -= this.chaseTime;
 
-                if (Date.now() - this.startTime > 3000) {
+                    let percentDone;
+                    if (delta > this.explodeTime / 2) {
+                        percentDone = 2 - 2 * delta / this.explodeTime;
+                        this.enemyScale =
+                            this.maxEnemyScale * percentDone;
+                    } else {
+                        percentDone = 2 * delta / this.explodeTime;
+                    }
+
+                    this.explosionScale = this.maxExplosionScale * percentDone;
+
+                    const explosionDist = Math.pow((this.explosionScale + player.playerScale) / 2, 2);
+
+                    if (!this.spent && dist < explosionDist)  {
+                        player.attack(0.5);
+                        this.spent = true;
+                    }
+
+                } else {
                     return false;
                 }
             }

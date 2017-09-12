@@ -1,5 +1,9 @@
-export const INITIAL_PLAYER_SPEED = 1.4;
-export const TRANSITION = 350;
-export const RENDER_AOE = 3;
-export const MAX_TOUCH_DISTANCE = 150;
-export const TIME_DILATION = 1;
+
+
+export default {
+    INITIAL_PLAYER_SPEED: 1.2,
+    TRANSITION: 350,
+    RENDER_AOE: 3,
+    MAX_TOUCH_DISTANCE: 150,
+    TIME_DILATION: 1,
+}

@@ -1,18 +1,19 @@
 import Renderer, { Program } from './renderer';
 import { vertex, playerFrag } from './shaders/shaders';
 import { setMatrix } from './lib';
-import { INITIAL_PLAYER_SPEED } from './config';
+import config from './config';
 import { state } from './globals';
 
-const PLAYER_SCALE = 0.4;
+const PLAYER_SCALE = 0.06;
 
 export default class Player {
     hp: number = 0;
-    speed: number = INITIAL_PLAYER_SPEED;
+    speed: number = config.INITIAL_PLAYER_SPEED;
     x: number;
     y: number;
     program: Program;
     actualHP: number = 1;
+    playerScale = PLAYER_SCALE;
 
     constructor(public renderer: Renderer) {
         this.program = new Program(renderer, vertex, playerFrag);

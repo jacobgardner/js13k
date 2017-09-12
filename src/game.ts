@@ -4,7 +4,7 @@ import { nodeToChar } from './debug';
 
 import buildGrid, { Grid } from './grid';
 import Node from './node';
-import { RENDER_AOE, MAX_TOUCH_DISTANCE, TIME_DILATION } from './config';
+import config from './config';
 import Renderer, { Program } from './renderer';
 import {
     vertex,
@@ -14,7 +14,8 @@ import {
     shadowFrag,
     flashlightFrag,
     indicatorFrag,
-    proximityFrag
+    proximityFrag,
+    explosionFrag
 } from './shaders/shaders';
 import { Entity, Shooter, ProximityMine } from './entity';
 import { random } from './random';
@@ -50,6 +51,7 @@ export default class Game {
 
     shooterProgram: Program;
     proximityProgram: Program;
+    explosionProgram: Program;
 
     startVector: [number, number] = [0, 0];
     currentVector: [number, number] = [0, 0];
@@ -59,6 +61,7 @@ export default class Game {
         this.shooterProgram = new Program(renderer, vertex, enemyFrag);
         this.bulletShaders = new Program(renderer, vertex, bulletFrag);
         this.proximityProgram = new Program(renderer, vertex, proximityFrag);
+        this.explosionProgram = new Program(renderer, vertex, explosionFrag);
         this.shadowShaders = new Program(renderer, vertex, shadowFrag);
         this.flashlightShaders = new Program(renderer, vertex, flashlightFrag);
         this.indicatorShaders = new Program(renderer, vertex, indicatorFrag);
@@ -175,13 +178,13 @@ export default class Game {
 
             if (
                 actualVector[0] * actualVector[0] >
-                MAX_TOUCH_DISTANCE * MAX_TOUCH_DISTANCE
+                Math.pow(config.MAX_TOUCH_DISTANCE, 2)
             ) {
                 actualVector = normalize(actualVector);
             } else {
                 actualVector = [
-                    actualVector[0] / MAX_TOUCH_DISTANCE,
-                    actualVector[1] / MAX_TOUCH_DISTANCE
+                    actualVector[0] / config.MAX_TOUCH_DISTANCE,
+                    actualVector[1] / config.MAX_TOUCH_DISTANCE
                 ];
             }
 
@@ -276,8 +279,8 @@ export default class Game {
     }
 
     draw() {
-        state.lastFrame = state.lastFrame + state.delta * 1000 / TIME_DILATION;
-        state.delta = (Date.now() - state.lastFrame) / 1000 * TIME_DILATION;
+        state.lastFrame = state.lastFrame + state.delta * 1000 / config.TIME_DILATION;
+        state.delta = (Date.now() - state.lastFrame) / 1000 * config.TIME_DILATION;
         this.processInput();
 
         const SCALE = 12;
@@ -310,8 +313,8 @@ export default class Game {
         this.pendingEntities = [];
         for (const entity of this.entities) {
             if (
-                Math.abs(player.x - entity.x) > RENDER_AOE ||
-                Math.abs(player.y - entity.y) > RENDER_AOE
+                Math.abs(player.x - entity.x) > config.RENDER_AOE ||
+                Math.abs(player.y - entity.y) > config.RENDER_AOE
             ) {
                 continue;
             }
@@ -393,9 +396,9 @@ export default class Game {
             0
         );
         this.renderer.modelMat = setMatrix(
-            player.x - 0.5 + exitVec[0],
-            player.y - 0.5 + exitVec[1],
-            1
+            player.x - 0.04 + exitVec[0],
+            player.y - 0.04 + exitVec[1],
+            0.08
         );
         this.renderer.setMatrices();
         gl.uniform1f(this.indicatorShaders.t, indicatorAlpha);

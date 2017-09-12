@@ -1,5 +1,5 @@
 import Game from './game';
-import { TRANSITION } from './config';
+import config from './config';
 import { setMatrix } from './lib';
 
 const LEFT = 1;
@@ -64,7 +64,7 @@ export default class Node {
                 : this === game.end ? 1 : this.touched ? 2 : 3
         );
 
-        let t = !this.time ? 0 : (Date.now() - this.time) / TRANSITION;
+        let t = !this.time ? 0 : (Date.now() - this.time) / config.TRANSITION;
         if (t > 1) {
             t = 1;
         }

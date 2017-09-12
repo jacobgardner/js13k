@@ -18,7 +18,7 @@ float circularIn(float t) {
 }
 
 float softEdge(float t, float buffer) {
-    float r = t < 0.5 - buffer ? 1.0 : t > 0.5 + buffer ? 0.0 : 1.0 - (t - (0.5 - buffer)) / 0.1;
+    float r = t < 1.0 - 2.0 * buffer ? 1.0 : t > 1.0 ? 0.0 : 1.0 - (t - (1.0 - 2.0 * buffer)) / 0.1;
     return r * r;
 }
 
@@ -30,7 +30,7 @@ export void vertex() {
 export void playerFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1), 0.05);
+    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.05);
 
     gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), hp);
 }
@@ -38,7 +38,7 @@ export void playerFrag() {
 export void enemyFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.1), 0.05);
+    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.05);
 
     gl_FragColor = vec4(1, 0, 0, alpha);
 }
@@ -46,10 +46,19 @@ export void enemyFrag() {
 export void proximityFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.2), 0.02);
+    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.02);
 
     gl_FragColor = vec4(0.3, 0.3, 0.7, alpha);
 }
+
+export void explosionFrag() {
+    vec2 offset = squarePos - 0.5;
+
+    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.02);
+
+    gl_FragColor = vec4(0.8, 0, 0, alpha);
+}
+
 
 export void shadowFrag() {
     const float alpha = 1.0;
@@ -61,7 +70,7 @@ export void bulletFrag() {
 
     float dist = distance(vec2(0, 0), offset / 0.1);
 
-    float alpha = softEdge(dist, 0.05);
+    float alpha = softEdge(dist, 0.05) * 2.0;
 
     float blue = (atan(offset.y / offset.x) + 1.0) / (2.0);
 
@@ -75,7 +84,7 @@ float waver(float t) {
 export void indicatorFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset / 0.04), 0.05);
+    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.05);
 
     gl_FragColor = vec4(0, 0.75, 0.75, alpha * 0.85 * t);
 }
