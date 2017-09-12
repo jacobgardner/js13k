@@ -17,7 +17,7 @@ import {
     proximityFrag,
     explosionFrag
 } from './shaders/shaders';
-import { Entity, Shooter, ProximityMine } from './entity';
+import { Entity, Shooter, ProximityMine, MiniMap } from './entity';
 import { random } from './random';
 import Player from './player';
 import { state } from './globals';
@@ -117,6 +117,9 @@ export default class Game {
             const node = this.grid.nodes[key];
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
+
+                this.entities.push(new MiniMap(node.position[0], node.position[1]));
+
                 const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {
                     const Enemy = enemyTypes[random(0, enemyTypes.length)];
@@ -292,8 +295,8 @@ export default class Game {
             (Date.now() - state.lastFrame) / 1000 * config.TIME_DILATION;
         this.processInput();
 
-        const SCALE = 12;
         const player = this.player;
+        const SCALE = config.CAMERA_SCALE;
         // prettier-ignore
         this.renderer.camera = new Float32Array([
             SCALE,             0,                 0, 0,
@@ -306,20 +309,7 @@ export default class Game {
 
         const gl = this.renderer.gl;
 
-        const drawMap = (isMinimap: boolean) => {
-            gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
-            gl.vertexAttribPointer(
-                this.mazeShaders.vertPos,
-                2,
-                gl.FLOAT,
-                false,
-                0,
-                0
-            );
-            this.grid.draw(this, isMinimap);
-        }
-
-        drawMap(false);
+        this.grid.draw(this, false);
 
         const removedEntities: Entity[] = [];
         this.entities = this.entities.concat(this.pendingEntities);
@@ -428,7 +418,7 @@ export default class Game {
             0,                 0,                 1, 0,
             8, -10, 1, 1
         ]);
-        drawMap(true);
+        this.grid.draw(this, true);
 
         if (
             (player.hp < 0.01 && player.actualHP < 1) ||

@@ -87,6 +87,48 @@ abstract class Enemy implements Entity {
     abstract simulate(game: Game): boolean;
 }
 
+abstract class Item implements Entity {
+    constructor(public x: number, public y: number) // public level: number,
+    // public distance: number
+    {
+    }
+
+    abstract draw(game: Game): void;
+    abstract simulate(game: Game): boolean;
+}
+
+export class MiniMap extends Item {
+    constructor(x: number, y: number) {
+        super(x + 0.5, y + 0.5);
+
+    }
+
+    draw(game: Game) {
+        const minimapScale = 1 / game.grid.height;
+
+        const now = Date.now();
+
+        const c = Math.cos(now / 1000 % Math.PI * 2);
+        const s = Math.sin(now / 1000 % Math.PI * 2);
+
+        const oldCam = game.renderer.camera;
+        const scale = config.CAMERA_SCALE;
+        // prettier-ignore
+        game.renderer.camera = new Float32Array([
+            c * minimapScale,      s * minimapScale ,                 0, 0,
+            -s * minimapScale,     c * minimapScale,      0, 0,
+            0,                 0,                 1, 0,
+            -(game.player.x * scale) + this.x * scale, -(game.player.y * scale) + this.y * scale, 1, 1
+        ]);
+        game.grid.draw(game, true);
+        game.renderer.camera = oldCam;
+    }
+
+    simulate(game: Game) {
+        return true;
+    }
+}
+
 export class ProximityMine extends Enemy {
     maxEnemyScale: number = 0.2;
     maxExplosionScale: number = 0.7;
@@ -180,7 +222,13 @@ export class ProximityMine extends Enemy {
                     if (enemy instanceof Shooter) {
                         const [ex, ey] = [this.x - enemy.x, this.y - enemy.y];
                         const enemyDist = ex * ex + ey * ey;
-                        if (enemyDist < Math.pow((this.explosionScale + enemy.enemyScale) / 2, 2)) {
+                        if (
+                            enemyDist <
+                            Math.pow(
+                                (this.explosionScale + enemy.enemyScale) / 2,
+                                2
+                            )
+                        ) {
                             enemy.dying = true;
                         }
                     }
@@ -211,7 +259,6 @@ export class Shooter extends Enemy {
         this.enemyScale = this.maxEnemyScale;
     }
 
-
     draw(game: Game) {
         const renderer = game.renderer;
         const gl = renderer.gl;
@@ -228,8 +275,7 @@ export class Shooter extends Enemy {
     }
 
     simulate(game: Game) {
-
-        if(this.dying) {
+        if (this.dying) {
             if (!this.dieStart) {
                 this.dieStart = Date.now();
             } else {

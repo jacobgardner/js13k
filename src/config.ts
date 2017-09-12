@@ -6,4 +6,5 @@ export default {
     RENDER_AOE: 4,
     MAX_TOUCH_DISTANCE: 150,
     TIME_DILATION: 1,
+    CAMERA_SCALE: 12,
 }
