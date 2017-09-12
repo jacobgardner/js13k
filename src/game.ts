@@ -74,7 +74,7 @@ export default class Game {
         this.dropShadowShaders = new Program(renderer, vertex, dropShadowFrag);
         this.shieldProgram = new Program(renderer, vertex, shieldFrag);
 
-        this.player = new Player(renderer);
+        this.player = new Player(this);
 
         this.buildWorld();
 
@@ -113,21 +113,26 @@ export default class Game {
     buildWorld() {
         this.entities = [];
         this.pendingEntities = [];
+        this.minimapActivated = 0;
         const size = logarithmicProgression(this.level);
         [this.grid, this.start, this.end] = buildGrid(size, size);
 
         setTitle(this.level, this.maxLevel);
 
         const enemyTypes = [ProximityMine, Shooter];
+        const itemTypes = [MiniMap, Shield];
 
         for (const key in this.grid.nodes) {
             const node = this.grid.nodes[key];
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
 
-                this.entities.push(
-                    new Shield(node.position[0], node.position[1])
-                );
+                if (random(0, 10) === 0) {
+                    const Item = itemTypes[random(0, itemTypes.length)];
+                    this.entities.push(
+                        new Item(node.position[0], node.position[1])
+                    );
+                }
 
                 const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {

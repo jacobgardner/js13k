@@ -98,25 +98,46 @@ abstract class Item implements Entity {
 }
 
 export class Shield extends Item {
+    shieldScale: number = 0.5;
+    grabbed: number;
+    fade: number = 0;
+
+    constructor(x: number, y: number) {
+        super(x + 0.5, y + 0.5);
+    }
+
 
     draw(game: Game) {
         const renderer = game.renderer;
         const gl = renderer.gl;
 
         game.shieldProgram.use();
+        gl.uniform1f(game.shieldProgram.fade, this.fade);
 
         renderer.modelMat = setMatrix(
-            this.x,
-            this.y,
-            1
+            this.x - this.shieldScale / 2,
+            this.y - this.shieldScale / 2,
+            this.shieldScale
         );
         renderer.setMatrices();
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-
     }
 
     simulate(game: Game) {
+        const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
+
+        if (this.grabbed) {
+            this.fade = (Date.now() - this.grabbed) * config.TIME_DILATION / 300;
+
+            if (this.fade > 1) {
+                return false;
+            }
+        } else if (dx * dx + dy * dy < 0.05) {
+            this.grabbed = Date.now();
+            game.player.shield = Date.now();
+            // game.minimapActivated = Date.now();
+        }
+
         return true;
     }
 }

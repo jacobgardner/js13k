@@ -11,6 +11,7 @@ uniform int squareState;
 uniform int isMinimap;
 uniform float t;
 uniform float fade;
+uniform float shield;
 uniform float hp;
 
 varying vec2 squarePos;
@@ -33,12 +34,36 @@ export void vertex() {
     squarePos = vertPos;
 }
 
+export void playerShieldFrag() {
+    vec2 offset = squarePos - 0.5;
+
+    float dist = distance(offset, vec2(0, 0));
+
+    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.05);
+
+    float mixVal = circularIn((dist - 0.8) / 0.5);
+    mixVal = mixVal < 0.0 ? 0.0 : mixVal;
+
+    vec4 color = mix(vec4(0, 0, 0, 0), vec4(0, 1, 1, 1), mixVal);
+
+    color.a = color.a < alpha ? color.a : alpha;
+
+    gl_FragColor = color;
+}
+
 export void playerFrag() {
     vec2 offset = squarePos - 0.5;
 
     float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.05);
+    // float aura = 1.0 - circularIn(distance(vec2(0, 0), offset) * 2.0) * shield;
 
-    gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0, 1, 0, alpha), hp);
+    vec4 color = mix(vec4(1, 0, 0, 1), vec4(0, 1, 0, 1), hp);
+
+    // color = mix(color, vec4(0, 1, 1, 1), aura);
+
+    color.a = alpha;
+
+    gl_FragColor = color;
 }
 
 export void enemyFrag() {
@@ -130,10 +155,7 @@ export void shieldFrag() {
         }
     }
 
-    gl_FragColor = on ? mix(vec4(0, 1, 1, 1), vec4(0, 0.0, 0.0, 1), 1.0 - circularIn(intensity)) : vec4(0, 0, 0, 0);
-    // gl_FragColor = vec4(1, 0, 0,1 );
-
-
+    gl_FragColor = on ? mix(vec4(0, 1, 1, 1.0 - fade), vec4(0, 0.0, 0.0, 1.0 - fade), 1.0 - circularIn(intensity + fade)) : vec4(0, 0, 0, 0);
 }
 
 export void hallFrag() {

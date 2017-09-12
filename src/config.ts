@@ -8,4 +8,5 @@ export default {
     TIME_DILATION: 1,
     CAMERA_SCALE: 12,
     MINIMAP_DURATION: 15000,
+    SHIELD_DURATION: 10000,
 }
