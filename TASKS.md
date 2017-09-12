@@ -3,18 +3,11 @@ Tasks
 
  * Draw muted exit on top of shadows?
  * Implement progression system:
-    * Start level at 2x2, then increase in size logarithmically?
     * Have a low probability of a node having 1 enemy, scale up
     * Increase the difficulty of enemies:
         * For shooter enemies, increase frequency and/or clip size of gun and/or reload time.
         * For proximity mines, make them chase longer, move faster (up to the player's speed)
- * Enemies:
-    * Shooter: Have a clip size, frequency of shots, reload time, accuracy.
-    * Proximity Mine: Activates if within certain AOE of player.  Slowly increases in speed over a period of N seconds, then explodes.
-        * Can damage other enemies and player.
-        * AOE can increase for difficulty
-        * Chase time can increase for difficulty.
- * Possible Items:
+* Possible Items:
     * HP/Light regen: Dan thinks this would ruin the horror element.  So maybe not.
     * Minimap for N seconds.
     * Shield for N seconds.
@@ -48,6 +41,12 @@ Tasks
  * On walls, have player hug them when going too far.
  * ^ Same with projectiles
  * Draw indicator for where your touch event began
+ * Enemies:
+    * Shooter: Have a clip size, frequency of shots, reload time, accuracy.
+    * Proximity Mine: Activates if within certain AOE of player.  Slowly increases in speed over a period of N seconds, then explodes.
+        * Can damage other enemies and player.
+        * AOE can increase for difficulty
+        * Chase time can increase for difficulty.
 
 ## Done
  * Music by Dan
@@ -56,3 +55,5 @@ Tasks
  * Have indicator showing where exit is.
  * Mobile Support
     * Press and drag in a direction for movement.
+ * Implement progression system:
+    * Start level at 2x2, then increase in size logarithmically?

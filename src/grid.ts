@@ -31,8 +31,10 @@ export class Grid {
         return node;
     }
 
-    draw(game: Game) {
+    draw(game: Game, isMinimap: boolean) {
         game.mazeShaders.use();
+        game.renderer.gl.uniform1i(game.mazeShaders.isMinimap, isMinimap ? 1 : 0);
+
         for (const key in this.nodes) {
             const node = this.nodes[key];
             node.draw(game);

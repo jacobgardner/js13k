@@ -8,6 +8,7 @@ uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
 uniform int squareState;
+uniform int isMinimap;
 uniform float t;
 uniform float hp;
 
@@ -107,13 +108,17 @@ export void hallFrag() {
 
     if (squareState == 0) {
 
-        if (mod((squarePos.x - squarePos.y) * 10.0, 2.0) > 1.0) {
+        if (isMinimap == 1) {
+            hall = vec4(1, 0, 0, 1);
+        } else if (mod((squarePos.x - squarePos.y) * 10.0, 2.0) > 1.0) {
             hall = vec4(1, 1, 0, 1);
         } else {
             hall = vec4(0.2, 0.2, 0.2, 1);
         }
     } else if (squareState == 1) {
-        if ((mod(squarePos.x * 10.0, 2.0) > 1.0 && mod(squarePos.y * 10.0, 2.0) > 1.0) || (mod(squarePos.x * 10.0, 2.0) < 1.0 && mod(squarePos.y * 10.0, 2.0) < 1.0)) {
+        if (isMinimap == 1) {
+            hall = vec4(0, 1, 0, 1);
+        } else if ((mod(squarePos.x * 10.0, 2.0) > 1.0 && mod(squarePos.y * 10.0, 2.0) > 1.0) || (mod(squarePos.x * 10.0, 2.0) < 1.0 && mod(squarePos.y * 10.0, 2.0) < 1.0)) {
             hall = vec4(1, 1, 1, 1);
         } else {
             hall = vec4(0, 0, 0, 1);

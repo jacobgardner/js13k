@@ -71,7 +71,6 @@ export default class Renderer {
         const canvas = document.querySelector('canvas') as HTMLCanvasElement;
 
         gl = this.gl = canvas.getContext('webgl') as WebGLRenderingContext;
-        console.log(gl);
 
         // @if DEBUG
         if (!gl) {

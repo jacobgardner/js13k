@@ -305,17 +305,21 @@ export default class Game {
         this.buildShadows();
 
         const gl = this.renderer.gl;
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
-        gl.vertexAttribPointer(
-            this.mazeShaders.vertPos,
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
 
-        this.grid.draw(this);
+        const drawMap = (isMinimap: boolean) => {
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
+            gl.vertexAttribPointer(
+                this.mazeShaders.vertPos,
+                2,
+                gl.FLOAT,
+                false,
+                0,
+                0
+            );
+            this.grid.draw(this, isMinimap);
+        }
+
+        drawMap(false);
 
         const removedEntities: Entity[] = [];
         this.entities = this.entities.concat(this.pendingEntities);
@@ -416,6 +420,16 @@ export default class Game {
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
+        const minimapScale = 2 / this.grid.height;
+
+        this.renderer.camera = new Float32Array([
+            minimapScale,             0,                 0, 0,
+            0,                 minimapScale,             0, 0,
+            0,                 0,                 1, 0,
+            8, -10, 1, 1
+        ]);
+        drawMap(true);
+
         if (
             (player.hp < 0.01 && player.actualHP < 1) ||
             (player.hp >= 1.5 && player.actualHP > 1.5)
@@ -433,6 +447,8 @@ export default class Game {
             player.actualHP = 1;
             this.buildWorld();
         }
+
+
 
         const playerNode = this.grid.get(
             Math.floor(player.x),
