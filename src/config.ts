@@ -7,4 +7,5 @@ export default {
     MAX_TOUCH_DISTANCE: 150,
     TIME_DILATION: 1,
     CAMERA_SCALE: 12,
+    MINIMAP_DURATION: 15000,
 }

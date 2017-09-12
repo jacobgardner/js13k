@@ -15,9 +15,11 @@ import {
     flashlightFrag,
     indicatorFrag,
     proximityFrag,
-    explosionFrag
+    explosionFrag,
+    dropShadowFrag,
+    shieldFrag
 } from './shaders/shaders';
-import { Entity, Shooter, ProximityMine, MiniMap } from './entity';
+import { Entity, Shooter, ProximityMine, MiniMap, Shield } from './entity';
 import { random } from './random';
 import Player from './player';
 import { state } from './globals';
@@ -37,6 +39,7 @@ export default class Game {
     player: Player;
     downMap: Map<number> = {};
     startTime: number = Date.now();
+    minimapActivated: number = 0;
 
     level: number = 0;
     maxLevel: number = 0;
@@ -49,10 +52,12 @@ export default class Game {
     flashlightShaders: Program;
     shadowShaders: Program;
     indicatorShaders: Program;
+    dropShadowShaders: Program;
 
     shooterProgram: Program;
     proximityProgram: Program;
     explosionProgram: Program;
+    shieldProgram: Program;
 
     startVector: [number, number] = [0, 0];
     currentVector: [number, number] = [0, 0];
@@ -66,6 +71,8 @@ export default class Game {
         this.shadowShaders = new Program(renderer, vertex, shadowFrag);
         this.flashlightShaders = new Program(renderer, vertex, flashlightFrag);
         this.indicatorShaders = new Program(renderer, vertex, indicatorFrag);
+        this.dropShadowShaders = new Program(renderer, vertex, dropShadowFrag);
+        this.shieldProgram = new Program(renderer, vertex, shieldFrag);
 
         this.player = new Player(renderer);
 
@@ -118,7 +125,9 @@ export default class Game {
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
 
-                this.entities.push(new MiniMap(node.position[0], node.position[1]));
+                this.entities.push(
+                    new Shield(node.position[0], node.position[1])
+                );
 
                 const entityCount = random(0, 2);
                 for (let i = 0; i < entityCount; i += 1) {
@@ -410,15 +419,20 @@ export default class Game {
 
         gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
-        const minimapScale = 2 / this.grid.height;
-
-        this.renderer.camera = new Float32Array([
-            minimapScale,             0,                 0, 0,
-            0,                 minimapScale,             0, 0,
-            0,                 0,                 1, 0,
-            8, -10, 1, 1
-        ]);
-        this.grid.draw(this, true);
+        if (
+            (Date.now() - this.minimapActivated) * config.TIME_DILATION <
+            config.MINIMAP_DURATION
+        ) {
+            const minimapScale = 2 / this.grid.height;
+            // prettier-ignore
+            this.renderer.camera = new Float32Array([
+                minimapScale, 0, 0, 0,
+                0, minimapScale, 0, 0,
+                0, 0, 1, 0,
+                8, -10, 1, 1
+            ]);
+            this.grid.draw(this, true);
+        }
 
         if (
             (player.hp < 0.01 && player.actualHP < 1) ||
@@ -437,8 +451,6 @@ export default class Game {
             player.actualHP = 1;
             this.buildWorld();
         }
-
-
 
         const playerNode = this.grid.get(
             Math.floor(player.x),

@@ -10,6 +10,7 @@ uniform mat4 projMat;
 uniform int squareState;
 uniform int isMinimap;
 uniform float t;
+uniform float fade;
 uniform float hp;
 
 varying vec2 squarePos;
@@ -21,6 +22,10 @@ float circularIn(float t) {
 float softEdge(float t, float buffer) {
     float r = t < 1.0 - 2.0 * buffer ? 1.0 : t > 1.0 ? 0.0 : 1.0 - (t - (1.0 - 2.0 * buffer)) / 0.1;
     return r * r;
+}
+
+export void dropShadowFrag() {
+    gl_FragColor = vec4(0, 0, 0, 1.0 - fade);
 }
 
 export void vertex() {
@@ -101,9 +106,33 @@ export void flashlightFrag() {
     gl_FragColor = mix(vec4(0, 0, 0, alpha), vec4(1, 1, 1, 1), hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0);
 }
 
+export void shieldFrag() {
+    vec2 offset = (squarePos - vec2(0.5, 0));
+    offset.x *= 25.0;
+    offset.y *= 25.0;
+
+
+    bool on = false;
+
+    if (offset.x > -7.0 && offset.x < 7.0 && offset.y > offset.x * offset.x / 2.5) {
+        if (offset.x < -3.5) {
+            on = offset.y < pow(offset.x + 3.5, 2.0) / 6.0 + 17.5;
+        } else if (offset.x < 0.0) {
+            on = offset.y < pow(offset.x - 3.5, 2.0) / 6.0 + 17.5;
+        } else if (offset.x < 3.5) {
+            on = offset.y < pow(offset.x - 3.5, 2.0) / 1.7 + 17.5;
+        } else {
+            on = offset.y < pow(offset.x + 3.5, 2.0) / 1.7 + 17.5;
+        }
+    }
+
+    gl_FragColor = on ? vec4(0, 1, 1, 1) : vec4(0, 0, 0, 0);
+
+}
+
 export void hallFrag() {
-    vec4 wall = vec4(0, 0, 0, 1);
-    vec4 hall = vec4(1, 1, 1, 1);
+    vec4 wall = vec4(0, 0, 0, fade);
+    vec4 hall = vec4(1, 1, 1, fade);
 
 
     if (squareState == 0) {
@@ -128,5 +157,6 @@ export void hallFrag() {
     }
 
     vec4 color = mix(vec4(0.5, 0.5, 0.5, 1), hall, 1.0 - circularIn(squareState < 2 ? 1.0 : t));
+    color.a = 1.0 - fade;
     gl_FragColor = color;
 }

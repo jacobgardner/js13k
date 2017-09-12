@@ -97,7 +97,34 @@ abstract class Item implements Entity {
     abstract simulate(game: Game): boolean;
 }
 
+export class Shield extends Item {
+
+    draw(game: Game) {
+        const renderer = game.renderer;
+        const gl = renderer.gl;
+
+        game.shieldProgram.use();
+
+        renderer.modelMat = setMatrix(
+            this.x - 1 / 2,
+            this.y - 1 / 2,
+            1
+        );
+        renderer.setMatrices();
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
+    }
+
+    simulate(game: Game) {
+        return true;
+    }
+}
+
 export class MiniMap extends Item {
+    grabbed: number;
+    fade: number = 0;
+
     constructor(x: number, y: number) {
         super(x + 0.5, y + 0.5);
 
@@ -105,6 +132,8 @@ export class MiniMap extends Item {
 
     draw(game: Game) {
         const minimapScale = 1 / game.grid.height;
+        const renderer = game.renderer;
+        const gl = renderer.gl;
 
         const now = Date.now();
 
@@ -113,18 +142,56 @@ export class MiniMap extends Item {
 
         const oldCam = game.renderer.camera;
         const scale = config.CAMERA_SCALE;
+
+        const r1 = c * minimapScale;
+        const r2 = s * minimapScale;
+
         // prettier-ignore
-        game.renderer.camera = new Float32Array([
-            c * minimapScale,      s * minimapScale ,                 0, 0,
-            -s * minimapScale,     c * minimapScale,      0, 0,
+        renderer.camera = new Float32Array([
+            r1,      r2,                 0, 0,
+            -r2,     r1,      0, 0,
             0,                 0,                 1, 0,
-            -(game.player.x * scale) + this.x * scale, -(game.player.y * scale) + this.y * scale, 1, 1
+            scale * (this.x - game.player.x - 0.1 * (r1 + r2)), scale * (this.y - game.player.y - 0.2 * (r1 - r2)), 1, 1
+            // -(game.player.x * scale) + this.x * scale, -(game.player.y * scale) + this.y * scale, 1, 1
         ]);
+
+        game.dropShadowShaders.use();
+        gl.uniform1f(game.dropShadowShaders.fade, this.fade);
+
+        // I'm honestly not sure why this works...
+        // I think it's because I'm displacing it half of the extra distance
+        //  caused by the upscale... but let's be real... who cares?
+
+        renderer.modelMat = setMatrix(
+            -0.1 / minimapScale, -0.1 / minimapScale,
+            game.grid.height * 1.2
+        );
+        renderer.setMatrices();
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+
+        game.mazeShaders.use();
+        gl.uniform1f(game.mazeShaders.fade, this.fade);
         game.grid.draw(game, true);
+        gl.uniform1f(game.mazeShaders.fade, 0);
+
         game.renderer.camera = oldCam;
     }
 
     simulate(game: Game) {
+        const [dx, dy] = [game.player.x - this.x, game.player.y - this.y];
+
+        if (this.grabbed) {
+            this.fade = (Date.now() - this.grabbed) * config.TIME_DILATION / 300;
+
+            if (this.fade > 1) {
+                return false;
+            }
+        } else if (dx * dx + dy * dy < 0.05) {
+            this.grabbed = Date.now();
+            game.minimapActivated = Date.now();
+        }
+
         return true;
     }
 }
