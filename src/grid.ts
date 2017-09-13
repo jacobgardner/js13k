@@ -1,6 +1,7 @@
 import { random, randomPop } from './random';
 import Game from './game';
 import Node from './node';
+import { Vec2 } from './math';
 
 interface GridCoord {
     [key: string]: Node;
@@ -11,21 +12,20 @@ export class Grid {
 
     constructor(public width: number, public height: number) {}
 
-    get(x: number, y: number): Node | null {
-        // @if DEBUG
-        if (x % 1 !== 0 || y % 1 !== 0) {
-            throw new Error('Input must be integer');
-        }
-        // @endif
-        const coord = [x, y].toString();
+    get(vec: Vec2): Node | null {
+        vec = vec.clone();
+        vec.x = Math.floor(vec.x);
+        vec.y = Math.floor(vec.y);
 
-        if (x >= this.width || y >= this.height || x < 0 || y < 0) {
+        const coord = [vec.x, vec.y].toString();
+
+        if (vec.x >= this.width || vec.y >= this.height || vec.x < 0 || vec.y < 0) {
             return null;
         }
 
         let node: Node = this.nodes[coord] as Node;
         if (!node) {
-            node = this.nodes[coord] = new Node(x, y);
+            node = this.nodes[coord] = new Node(vec.x, vec.y);
         }
 
         return node;
@@ -54,17 +54,19 @@ export class Grid {
     }
 }
 
+const ADJACENT = [new Vec2(-1, 0), new Vec2(1, 0), new Vec2(0, -1), new Vec2(0, 1)];
+
 export default function(width: number, height: number): [Grid, Node, Node] {
     const grid: Grid = new Grid(width, height);
 
-    const adjacent = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
     for (let x = 0; x < width; x++) {
         for (let y = 0; y < height; y++) {
-            const node = grid.get(x, y) as Node;
+            const nodePosition = new Vec2(x, y);
 
-            for (const offset of adjacent) {
-                const sibling = grid.get(x + offset[0], y + offset[1]);
+            const node = grid.get(nodePosition) as Node;
+
+            for (const offset of ADJACENT) {
+                const sibling = grid.get(nodePosition.add(offset));
                 if (sibling) {
                     node.untouched.push(sibling);
                 }
@@ -72,7 +74,7 @@ export default function(width: number, height: number): [Grid, Node, Node] {
         }
     }
 
-    const start = grid.get(random(0, width), random(0, height)) as Node;
+    const start = grid.get(new Vec2(random(0, width), random(0, height))) as Node;
     const open: Node[] = [start];
 
     let end = start;

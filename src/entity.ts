@@ -42,39 +42,40 @@ export class Bullet implements Entity {
     }
 
     simulate(game: Game) {
-        const dx =
-            this.position.x + this.vector.x * this.bulletSpeed * state.delta;
-        const dy =
-            this.position.y + this.vector.y * this.bulletSpeed * state.delta;
+        const next = this.position
+            .add(this.vector.multiply(this.bulletSpeed * state.delta))
 
-        const current = game.grid.get(
-            Math.floor(this.position.x),
-            Math.floor(this.position.y)
-        ) as Node;
+        const current = game.grid.get(this.position) as Node;
+        const nextNode = game.grid.get(next) as Node;
         const player = game.player;
         if (
-            // current &&
-            current !== game.start &&
-            current !== game.end &&
-            current.passable(dx, dy, 0.02)
+            nextNode &&
+            nextNode !== game.start &&
+            nextNode !== game.end &&
+            current.passable(next, this.bulletScale / 2)
         ) {
             // Check for player collision
             const { x, y } = player.position;
 
             if (
-                current.passable(x, y) &&
-                game.grid.get(Math.floor(x), Math.floor(y)) !== game.start
+                current.passable(player.position) &&
+                game.grid.get(player.position) !== game.start
             ) {
-                const a = dx - x;
-                const b = dy - y;
-                if (a * a + b * b < 0.04 * 0.04) {
+                // const playerBullet = next.subtract(player.position);
+                // const a = dx - x;
+                // const b = dy - y;
+                if (
+                    next.dist(player.position) <
+                    (player.playerScale + this.bulletScale) / 2
+                ) {
                     player.attack(0.06);
                     return false;
                 }
             }
 
-            this.position.x = dx;
-            this.position.y = dy;
+            this.position = next;
+            // this.position.x = dx;
+            // this.position.y = dy;
             return true;
         }
 
@@ -281,10 +282,7 @@ export class ProximityMine extends Enemy {
     }
 
     simulate(game: Game) {
-        const currentNode = game.grid.get(
-            Math.floor(this.position.x),
-            Math.floor(this.position.y)
-        ) as Node;
+        const currentNode = game.grid.get(this.position) as Node;
         const player = game.player;
         const { x, y } = player.position;
 
@@ -293,7 +291,7 @@ export class ProximityMine extends Enemy {
         const normalVec = fullVec.normalize();
         const dist = fullVec.dist2();
 
-        const lineOfSight = currentNode.passable(Math.floor(x), Math.floor(y));
+        const lineOfSight = currentNode.passable(player.position);
 
         if (!this.startTime && dist < 0.5 && lineOfSight) {
             this.startTime = Date.now();
@@ -404,15 +402,11 @@ export class Shooter extends Enemy {
             return true;
         }
 
-        if (Date.now() - this.prevShotTime > 1000) {
+        if ((Date.now() - this.prevShotTime) * config.TIME_DILATION > 1000) {
             this.prevShotTime = Date.now();
             let vector = game.player.position
                 .subtract(this.position)
                 .normalize();
-            // let vector = normalize([
-            //     game.player.x - this.x,
-            //     game.player.y - this.y
-            // ]);
 
             const bullet = new Bullet(this.position.x, this.position.y);
             bullet.vector = vector;

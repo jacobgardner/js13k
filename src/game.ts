@@ -25,6 +25,7 @@ import Player from './player';
 import { state } from './globals';
 import { normalize, setMatrix, setTitle } from './lib';
 import { logarithmicProgression } from './progression';
+import { Vec2 } from './math';
 
 interface Map<T> {
     [key: string]: T;
@@ -159,7 +160,7 @@ export default class Game {
 
         const px = x;
         const py = y;
-        const current = grid.get(Math.floor(px), Math.floor(py)) as Node;
+        const current = grid.get(player.position) as Node;
 
         if (!this.startVector[0] && !this.startVector[1]) {
             // @if DEPLOY || DEBUG
@@ -232,11 +233,11 @@ export default class Game {
             yoffset *= -1;
         }
 
-        if (current.passable(x + xoffset, py + yoffset)) {
+        if (current.passable(new Vec2(x + xoffset, py + yoffset))) {
             player.position.x = x;
         }
 
-        if (current.passable(px + xoffset, y + yoffset)) {
+        if (current.passable(new Vec2(px + xoffset, y + yoffset))) {
             player.position.y = y;
         }
 
@@ -278,12 +279,12 @@ export default class Game {
 
             // Use to build shadows
             if (x * x + y * y < 2 * 2) {
-                if (!node.passable(nx, ny - 1)) {
+                if (!node.passable(new Vec2(nx, ny - 1))) {
                     // Bottom blocked
                     buildShadow(nx, ny, nx + 1, ny);
                 }
 
-                if (!node.passable(nx - 1, ny)) {
+                if (!node.passable(new Vec2(nx - 1, ny))) {
                     // left blocked
                     buildShadow(nx, ny, nx, ny + 1);
                 }
@@ -464,10 +465,7 @@ export default class Game {
             this.buildWorld();
         }
 
-        const playerNode = this.grid.get(
-            Math.floor(player.position.x),
-            Math.floor(player.position.y)
-        );
+        const playerNode = this.grid.get(player.position);
         if (playerNode === this.end) {
             player.actualHP = 1.8;
             this.entities = [];
@@ -480,7 +478,7 @@ export default class Game {
         for (let y = 0; y < this.grid.height; y++) {
             const line = [];
             for (let x = 0; x < this.grid.width; x++) {
-                line.push(this.grid.get(x, y));
+                line.push(this.grid.get(new Vec2(x, y)));
             }
 
             lines.push(

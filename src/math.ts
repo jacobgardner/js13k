@@ -1,6 +1,10 @@
 export class Vec2 {
     constructor(public x: number = 0, public y: number = 0) {}
 
+    clone() {
+        return new Vec2(this.x, this.y);
+    }
+
     subtract(rhs: Vec2 | number) {
         if (rhs instanceof Vec2) {
             return new Vec2(this.x - rhs.x, this.y - rhs.y);

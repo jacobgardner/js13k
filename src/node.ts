@@ -21,29 +21,30 @@ export default class Node {
         this.position = new Vec2(x, y);
     }
 
-    passable(x: number, y: number, radius: number = 0): boolean {
-        if (x < 0.5) {
-            x -= radius;
+    passable(vec: Vec2, radius: number = 0): boolean {
+        vec = vec.clone();
+        if (vec.x < 0.5) {
+            vec.x -= radius;
         } else {
-            x += radius;
+            vec.x += radius;
         }
 
-        if (y < 0.5) {
-            y -= radius;
+        if (vec.y < 0.5) {
+            vec.y -= radius;
         } else {
-            y += radius;
+            vec.y += radius;
         }
 
-        x = Math.floor(x);
-        y = Math.floor(y);
-        if (this.position.x === x && this.position.y === y) {
+        vec.x = Math.floor(vec.x);
+        vec.y = Math.floor(vec.y);
+        if (this.position.x === vec.x && this.position.y === vec.y) {
             return true;
         }
 
         for (const child of this.children) {
             if (
-                child.position.x === Math.floor(x) &&
-                child.position.y === Math.floor(y)
+                child.position.x === Math.floor(vec.x) &&
+                child.position.y === Math.floor(vec.y)
             ) {
                 return true;
             }
