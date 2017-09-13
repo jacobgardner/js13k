@@ -46,7 +46,7 @@ class Channel {
                     }
 
                     const pitchHz =
-                        pIdx === note.p.length - 1 ? 0 : getPitch(440, pitch);
+                        pIdx === note.p.length - 1 ? 0 : getPitch(440, pitch - 12);
                     oscillator.frequency.setValueAtTime(pitchHz, t);
                 }
             }
