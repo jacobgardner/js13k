@@ -67,21 +67,30 @@ export void playerFrag() {
 
     gl_FragColor = color;
 }
+// 219, 68, 55
+const vec3 ENEMY_COLOR = vec3(219. / 255., 68. / 255., 55. / 255.);
 
 export void enemyFrag() {
     vec2 offset = squarePos - 0.5;
 
     float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.05);
 
-    gl_FragColor = vec4(1, 0, 0, alpha);
+    gl_FragColor = vec4(ENEMY_COLOR, alpha);
 }
 
 export void proximityFrag() {
     vec2 offset = squarePos - 0.5;
 
-    float alpha = softEdge(distance(vec2(0, 0), offset) * 2.0, 0.02);
+    float dist = distance(vec2(0, 0), offset) * 2.0;
 
-    gl_FragColor = vec4(0.3, 0.3, 0.7, alpha);
+    float alpha = softEdge(dist, 0.02);
+
+    if (dist < 0.25) {
+        gl_FragColor = vec4(ENEMY_COLOR, alpha);
+    } else {
+        gl_FragColor = vec4(0.3, 0.3, 0.6, alpha);
+    }
+
 }
 
 export void explosionFrag() {
@@ -107,11 +116,11 @@ export void bulletFrag() {
 
     float blue = (atan(offset.y / offset.x) + 1.0) / (2.0);
 
-    gl_FragColor = mix(vec4(0.1, 0.1, 0.1, alpha), vec4(0.2, 0.3, 0.8, alpha), blue);
+    gl_FragColor = mix(vec4(1, 0, 0, alpha), vec4(0.6, 0.0, 0.0, alpha), blue);
 }
 
 float waver(float t) {
-    return (1.0+0.2*sin(0.005*t) + 0.05*sin(0.8*t) + 0.4 * sin(0.024*t) + 0.2 * sin(0.1*t)) / 10.0;
+    return (1.0+0.2*sin(0.005*t) + 0.05*sin(0.8*t) + 1.2 * sin(0.024*t) + 0.8 * sin(0.1*t)) / 10.0;
 }
 
 export void indicatorFrag() {
@@ -130,7 +139,9 @@ export void flashlightFrag() {
 
     alpha += waver(t);
 
-    gl_FragColor = mix(vec4(0, 0, 0, alpha), vec4(1, 1, 1, 1), hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0);
+    float mixVal = hp > 1.0 ? (hp - 1.0) * 2.0 : 0.0;
+
+    gl_FragColor = mix(vec4(0, 0, 0, alpha), vec4(1, 1, 1, 1), mixVal);
 }
 
 export void shieldFrag() {

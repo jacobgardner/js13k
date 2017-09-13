@@ -15,7 +15,7 @@ module.exports = {
                         /<script src=".*"><\/script>/,
                         `<script>${file.contents.toString()}</script>`
                     )
-                    .replace(/<\/?(body|html|head)>/g, "");
+                    // .replace(/<\/?(body|html|head)>/g, "");
 
                 // TODO: Minify HTML
                 file.contents = new Buffer(

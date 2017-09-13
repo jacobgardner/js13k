@@ -42,8 +42,9 @@ export class Bullet implements Entity {
     }
 
     simulate(game: Game) {
-        const next = this.position
-            .add(this.vector.multiply(this.bulletSpeed * state.delta))
+        const next = this.position.add(
+            this.vector.multiply(this.bulletSpeed * state.delta)
+        );
 
         const current = game.grid.get(this.position) as Node;
         const nextNode = game.grid.get(next) as Node;
@@ -68,7 +69,7 @@ export class Bullet implements Entity {
                     next.dist(player.position) <
                     (player.playerScale + this.bulletScale) / 2
                 ) {
-                    player.attack(0.06);
+                    player.attack(0.07);
                     return false;
                 }
             }
@@ -365,8 +366,17 @@ export class Shooter extends Enemy {
     dying: boolean = false;
     dieStart: number;
 
+    clipSize: number;
+    roundsPerSecond: number;
+    coolDown: number;
+    currentClip: number = 0;
+
     constructor(x: number, y: number, level: number, distance: number) {
         super(x, y, level, distance);
+
+        this.clipSize = Math.floor(Math.log((level + 2) * 1.9));
+        this.roundsPerSecond = Math.floor(Math.log(level + 2) * 3.5);
+        this.coolDown = 1000;
 
         this.enemyScale = this.maxEnemyScale;
     }
@@ -402,18 +412,27 @@ export class Shooter extends Enemy {
             return true;
         }
 
-        if ((Date.now() - this.prevShotTime) * config.TIME_DILATION > 1000) {
-            this.prevShotTime = Date.now();
-            let vector = game.player.position
-                .subtract(this.position)
-                .normalize();
+        const delta = (Date.now() - this.prevShotTime) * config.TIME_DILATION;
 
-            const bullet = new Bullet(this.position.x, this.position.y);
-            bullet.vector = vector;
+        if (this.currentClip && delta > 1000 / this.roundsPerSecond) {
+            this.currentClip -= 1;
 
-            game.pendingEntities.push(bullet);
+            this.shoot(game);
+        } else if (this.currentClip === 0 && delta > this.coolDown) {
+            this.currentClip = this.clipSize;
         }
+
         return true;
+    }
+
+    shoot(game: Game) {
+        let vector = game.player.position.subtract(this.position).normalize();
+
+        const bullet = new Bullet(this.position.x, this.position.y);
+        bullet.vector = vector;
+
+        game.pendingEntities.push(bullet);
+        this.prevShotTime = Date.now();
     }
 }
 

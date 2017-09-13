@@ -60,17 +60,6 @@ class Channel {
     }
 
     play(playOffset: number) {
-        // for (const oscillator of this.oscillatorPool) {
-        //     oscillator.stop(0);
-        //     oscillator.disconnect();
-        // }
-
-        // for (const gainNode of this.gainPool) {
-        //     gainNode.disconnect();
-        // }
-
-        // this.oscillatorPool = [];
-        // this.gainPool = [];
         this.finalTime = 0;
 
         for (
@@ -88,7 +77,7 @@ class Channel {
 
         setTimeout(() => {
             this.done();
-        }, this.finalTime * 1000 + 800);
+        }, this.finalTime * 1000 + 800 - playOffset * 1000);
     }
 
     get(n: number): [OscillatorNode, GainNode] {
@@ -102,7 +91,6 @@ class Channel {
             oscillator.type = this.channel[0].wave as any;
 
             oscillator.start();
-            console.log('new oscillator');
             this.oscillatorPool.push(oscillator);
             this.gainPool.push(gainNode);
         }
@@ -149,7 +137,6 @@ export default class Song {
     }
 
     play() {
-        console.log('Playing...');
         this.channelsRemaining = this.channels.length;
         const offset = (Date.now() - this.createdTime) / 1000;
         for (const channel of this.channels) {

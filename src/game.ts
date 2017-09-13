@@ -90,7 +90,8 @@ export default class Game {
         const start = (evt: any) => {
             evt.preventDefault();
             const root = (evt.targetTouches && evt.targetTouches[0]) || evt;
-            this.startVector = [root.clientX, root.clientY];
+            // this.startVector = [root.clientX, root.clientY];
+            this.startVector = [window.innerWidth / 2, window.innerHeight / 2];
         };
         const end = (evt: any) => {
             evt.preventDefault();
@@ -128,7 +129,7 @@ export default class Game {
             if (node !== this.start && node !== this.end) {
                 // we can pass in difficulty or whatever here
 
-                if (random(0, 10) === 0) {
+                if (random(0, 25) === 0) {
                     const Item = itemTypes[random(0, itemTypes.length)];
                     this.entities.push(
                         new Item(node.position.x, node.position.y)

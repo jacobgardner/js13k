@@ -49,9 +49,7 @@ export default class Player {
             return;
         }
 
-        console.log(this.hp - this.actualHP);
         if (Math.abs(this.hp - this.actualHP) < 0.01) {
-            console.log('LHT');
             this.lastHitTime = Date.now();
         }
 
