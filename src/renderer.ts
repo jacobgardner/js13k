@@ -24,11 +24,9 @@ export class Program {
         }
         gl.linkProgram(prog);
 
-        // @if DEBUG
         if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
             console.error('Could not link shaders....');
         }
-        // @endif
 
         this.use();
 

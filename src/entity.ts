@@ -20,7 +20,7 @@ export class Bullet implements Entity {
     vector: Vec2;
 
     bulletScale: number = 0.05;
-    bulletSpeed: number = 0.6;
+    bulletSpeed: number = 0.9;
 
     constructor(x: number, y: number) {
         this.position = new Vec2(x, y);

@@ -9,11 +9,9 @@ export function buildShader(
     gl.shaderSource(shader, shaderContents);
     gl.compileShader(shader);
 
-    // @if DEBUG
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
         throw gl.getShaderInfoLog(shader);
     }
-    // @endif
 
     return shader as WebGLShader;
 }

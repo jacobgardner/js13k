@@ -60,7 +60,7 @@ gulp.task('build-scripts', () => {
             )
             .pipe(replace(/^\(\(\)=>{/, ''))
             .pipe(replace(/}\)\(\);?$/, ''))
-            .pipe(replace(/\bconst\b/g, 'let'))
+            // .pipe(replace(/\bconst\b/g, 'let'))
             .pipe(generateHTML())
             .pipe(rename('index.html'))
 
