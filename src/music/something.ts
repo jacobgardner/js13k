@@ -7,6 +7,7 @@ import * as filters from '../audio/filters';
 export const bpm = 151;
 export const bpb = 6;
 export const tpb = 4;
+export const loopBars = 12;
 export const channels: IChannel[] = [
 
 [{

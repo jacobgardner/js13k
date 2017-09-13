@@ -7,6 +7,7 @@ function getPitch(root: number, n: number): number {
 class Channel {
     oscillatorPool: OscillatorNode[] = [];
     gainPool: GainNode[] = [];
+    finalTime: number = 0;
 
     constructor(
         public context: AudioContext,
@@ -14,7 +15,8 @@ class Channel {
         public channel: IChannel,
         public ticksPerBeat: number,
         public beatsPerMinute: number,
-        public beatsPerBar: number
+        public beatsPerBar: number,
+        private done: () => void
     ) {}
 
     playSequence(sequenceNumber: number, offset: number) {
@@ -48,12 +50,29 @@ class Channel {
                     const pitchHz =
                         pIdx === note.p.length - 1 ? 0 : getPitch(440, pitch - 8);
                     oscillator.frequency.setValueAtTime(pitchHz, t);
+
+                    if (t > this.finalTime) {
+                        this.finalTime = t;
+                    }
                 }
             }
         }
     }
 
-    play() {
+    play(playOffset: number) {
+        // for (const oscillator of this.oscillatorPool) {
+        //     oscillator.stop(0);
+        //     oscillator.disconnect();
+        // }
+
+        // for (const gainNode of this.gainPool) {
+        //     gainNode.disconnect();
+        // }
+
+        // this.oscillatorPool = [];
+        // this.gainPool = [];
+        this.finalTime = 0;
+
         for (
             let barNumber = 0;
             barNumber < this.channel[2].length;
@@ -63,9 +82,13 @@ class Channel {
 
             this.playSequence(
                 sequenceNumber,
-                barNumber * this.beatsPerBar * 60 / this.beatsPerMinute
+                playOffset + barNumber * this.beatsPerBar * 60 / this.beatsPerMinute
             );
         }
+
+        setTimeout(() => {
+            this.done();
+        }, this.finalTime * 1000 + 800);
     }
 
     get(n: number): [OscillatorNode, GainNode] {
@@ -79,6 +102,7 @@ class Channel {
             oscillator.type = this.channel[0].wave as any;
 
             oscillator.start();
+            console.log('new oscillator');
             this.oscillatorPool.push(oscillator);
             this.gainPool.push(gainNode);
         }
@@ -89,14 +113,18 @@ class Channel {
 
 export default class Song {
     channels: Channel[] = [];
+    channelsRemaining: number;
+    createdTime: number;
 
     constructor(
         channels: IChannel[],
         ticksPerBeat: number,
-        beatsPerMinute: number,
-        beatsPerBar: number
+        public beatsPerMinute: number,
+        public beatsPerBar: number,
+        public loopBars: number
     ) {
         const context = new AudioContext();
+        this.createdTime = Date.now();
         const gainNode = context.createGain();
         gainNode.gain.value = 0.02;
         gainNode.connect(context.destination);
@@ -108,15 +136,24 @@ export default class Song {
                 channel,
                 ticksPerBeat,
                 beatsPerMinute,
-                beatsPerBar
+                beatsPerBar,
+                () => {
+                    this.channelsRemaining -= 1;
+                    if (this.channelsRemaining === 0) {
+                        this.play();
+                    }
+                }
             );
             this.channels.push(channelObj);
         }
     }
 
     play() {
+        console.log('Playing...');
+        this.channelsRemaining = this.channels.length;
+        const offset = (Date.now() - this.createdTime) / 1000;
         for (const channel of this.channels) {
-            channel.play();
+            channel.play(offset);
         }
     }
 }

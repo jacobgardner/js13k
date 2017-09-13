@@ -5,6 +5,7 @@ import config from './config';
 import { state } from './globals';
 import Game from './game';
 import { Vec2 } from './math';
+import { lerp } from './progression';
 
 const PLAYER_SCALE = 0.04;
 
@@ -17,6 +18,7 @@ export default class Player {
     actualHP: number = 1;
     playerScale = PLAYER_SCALE;
     shield: number = 0;
+    lastHitTime: number = Date.now();
 
     constructor(public game: Game) {
         const renderer = game.renderer;
@@ -26,6 +28,11 @@ export default class Player {
 
     start(x: number, y: number) {
         this.position = new Vec2(x + 0.5, y + 0.5);
+    }
+
+    setHP(val: number) {
+        this.lastHitTime = Date.now();
+        this.actualHP = val;
     }
 
     attack(damage: number) {
@@ -42,14 +49,30 @@ export default class Player {
             return;
         }
 
+        console.log(this.hp - this.actualHP);
+        if (Math.abs(this.hp - this.actualHP) < 0.01) {
+            console.log('LHT');
+            this.lastHitTime = Date.now();
+        }
+
         this.actualHP -= damage;
+
+
         if (this.actualHP < 0) {
             this.actualHP = 0;
         }
     }
 
+    circularIn(t: number) {
+        return t * t;
+    }
+
     simulate() {
-        this.hp += (this.actualHP - this.hp) * state.delta * 0.9;
+        const t = this.circularIn((Date.now() - this.lastHitTime) / 800);
+
+        this.hp = lerp(this.hp, this.actualHP, t > 1 ? 1 : t < 0 ? 0 : t);
+        // this.hp += (this.actualHP - this.hp) * state.delta * 0.9;
+        // console.log(this.hp);
 
         if (this.hp < 0.15 && this.actualHP < 0.15) {
             this.actualHP = 0;

@@ -65,6 +65,7 @@ import * as filters from '../audio/filters';
 export const bpm = ${data.beatsPerMinute};
 export const bpb = ${data.beatsPerBar};
 export const tpb = ${data.ticksPerBeat};
+export const loopBars = ${data.loopBars};
 export const channels: IChannel[] = [
 ${data.channels.map(
             ch => `

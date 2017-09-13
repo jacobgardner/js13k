@@ -398,39 +398,39 @@ export default class Game {
 
         const maxDist = 0.75;
 
-        const indicatorDist = Math.sqrt(
-            Math.pow(exitVec.x, 2) + Math.pow(exitVec.x, 2)
-        );
-        let indicatorAlpha = 0;
-        if (indicatorDist > maxDist * maxDist) {
-            exitVec = exitVec.normalize().multiply(maxDist);
-            // exitVec = [exitVec.x * maxDist, exitVec[1] * maxDist];
-        }
+        // const indicatorDist = Math.sqrt(
+        //     Math.pow(exitVec.x, 2) + Math.pow(exitVec.x, 2)
+        // );
+        // let indicatorAlpha = 0;
+        // if (indicatorDist > maxDist * maxDist) {
+        //     exitVec = exitVec.normalize().multiply(maxDist);
+        //     // exitVec = [exitVec.x * maxDist, exitVec[1] * maxDist];
+        // }
 
-        indicatorAlpha =
-            indicatorDist < 0.5
-                ? 0
-                : indicatorDist > 1.5 ? 1 : indicatorDist - 0.5;
+        // indicatorAlpha =
+        //     indicatorDist < 0.5
+        //         ? 0
+        //         : indicatorDist > 1.5 ? 1 : indicatorDist - 0.5;
 
-        this.indicatorShaders.use();
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
-        gl.vertexAttribPointer(
-            this.indicatorShaders.vertPos,
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
-        this.renderer.modelMat = setMatrix(
-            player.position.x - 0.02 + exitVec.x,
-            player.position.y - 0.02 + exitVec.y,
-            0.04
-        );
-        this.renderer.setMatrices();
-        gl.uniform1f(this.indicatorShaders.t, indicatorAlpha);
+        // this.indicatorShaders.use();
+        // gl.bindBuffer(gl.ARRAY_BUFFER, this.renderer.squareBuffer);
+        // gl.vertexAttribPointer(
+        //     this.indicatorShaders.vertPos,
+        //     2,
+        //     gl.FLOAT,
+        //     false,
+        //     0,
+        //     0
+        // );
+        // this.renderer.modelMat = setMatrix(
+        //     player.position.x - 0.02 + exitVec.x,
+        //     player.position.y - 0.02 + exitVec.y,
+        //     0.04
+        // );
+        // this.renderer.setMatrices();
+        // gl.uniform1f(this.indicatorShaders.t, indicatorAlpha);
 
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        // gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
         if (
             (Date.now() - this.minimapActivated) * config.TIME_DILATION <
@@ -461,13 +461,14 @@ export default class Game {
                 this.maxLevel = this.level;
             }
 
-            player.actualHP = 1;
+            player.setHP(1);
             this.buildWorld();
         }
 
         const playerNode = this.grid.get(player.position);
-        if (playerNode === this.end) {
-            player.actualHP = 1.8;
+        if (playerNode === this.end && player.actualHP < 1.8) {
+            player.setHP(1.8);
+
             this.entities = [];
         }
     }

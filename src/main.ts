@@ -9,8 +9,8 @@ const renderer = new Renderer();
 const game = new Game(renderer);
 
 import * as dan from './music/cartoonGraveyard3';
-const song = new Song(dan.channels, dan.tpb, dan.bpm, dan.bpb);
-song.play();
+const song = new Song(dan.channels, dan.tpb, dan.bpm, dan.bpb, dan.loopBars);
+// song.play();
 
 // @if DEBUG
 console.log(
