@@ -23,13 +23,13 @@ export default class Node {
 
     passable(vec: Vec2, radius: number = 0): boolean {
         vec = vec.clone();
-        if (vec.x < 0.5) {
+        if (vec.x % 1 < 0.5) {
             vec.x -= radius;
         } else {
             vec.x += radius;
         }
 
-        if (vec.y < 0.5) {
+        if (vec.y % 1 < 0.5) {
             vec.y -= radius;
         } else {
             vec.y += radius;
